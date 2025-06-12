@@ -1,0 +1,134 @@
+<div class="inventory-report">
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon gradient-primary">
+        <i class="bi bi-box"></i>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">Total Productos</h3>
+        <p class="card-value">{{ report.totalProducts }}</p>
+        <p class="card-period">Registrados</p>
+      </div>
+    </div>
+    
+    <div class="summary-card">
+      <div class="card-icon gradient-success">
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">Ingredientes</h3>
+        <p class="card-value">{{ report.totalIngredients }}</p>
+        <p class="card-period">Disponibles</p>
+      </div>
+    </div>
+    
+    <div class="summary-card">
+      <div class="card-icon gradient-warning">
+        <i class="bi bi-currency-dollar"></i>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">Costo Ingredientes</h3>
+        <p class="card-value">${{ getTotalIngredientCost() | number:'1.2-2' }}</p>
+        <p class="card-period">Usados</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Products and Ingredient Usage -->
+  <div class="tables-grid">
+    <!-- Top Selling Products -->
+    <div class="table-container">
+      <div class="table-header">
+        <h3 class="table-title">
+          <i class="bi bi-trophy"></i>
+          Productos Más Vendidos
+        </h3>
+      </div>
+      <div class="table-content">
+        <div class="product-list">
+          <div class="product-item" *ngFor="let product of report.topSellingProducts; let i = index">
+            <div class="product-rank">
+              <div class="rank-number">{{ i + 1 }}</div>
+            </div>
+            <div class="product-info">
+              <h4 class="product-name">{{ product.productName }}</h4>
+              <div class="product-metrics">
+                <div class="metric">
+                  <i class="bi bi-box"></i>
+                  <span class="metric-value">{{ product.totalQuantity }}</span>
+                  <span class="metric-label">vendidos</span>
+                </div>
+                <div class="metric">
+                  <i class="bi bi-currency-dollar"></i>
+                  <span class="metric-value">${{ product.totalRevenue | number:'1.2-2' }}</span>
+                  <span class="metric-label">ingresos</span>
+                </div>
+              </div>
+            </div>
+            <div class="product-percentage">
+              <div class="percentage-circle" [style.--percentage]="product.percentage">
+                <span>{{ product.percentage | number:'1.0-0' }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ingredient Usage -->
+    <div class="table-container">
+      <div class="table-header">
+        <h3 class="table-title">
+          <i class="bi bi-pie-chart"></i>
+          Uso de Ingredientes
+        </h3>
+      </div>
+      <div class="table-content">
+        <div class="ingredient-list">
+          <div class="ingredient-item" *ngFor="let ingredient of report.ingredientUsage.slice(0, 10)">
+            <div class="ingredient-icon">
+              <i class="bi bi-circle-fill"></i>
+            </div>
+            <div class="ingredient-info">
+              <h4 class="ingredient-name">{{ ingredient.ingredientName }}</h4>
+              <div class="ingredient-details">
+                <span class="usage-amount">{{ ingredient.totalUsed | number:'1.2-2' }} {{ ingredient.unit }}</span>
+                <span class="usage-cost">${{ ingredient.cost | number:'1.2-2' }}</span>
+              </div>
+            </div>
+            <div class="usage-bar">
+              <div class="bar-fill" [style.width.%]="getUsagePercentage(ingredient.cost)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ingredient Usage Chart -->
+  <div class="chart-container">
+    <div class="chart-header">
+      <h3 class="chart-title">
+        <i class="bi bi-bar-chart"></i>
+        Distribución de Costos por Ingrediente
+      </h3>
+    </div>
+    <div class="chart-content">
+      <div class="cost-distribution">
+        <div class="distribution-bars">
+          <div class="bar-item" *ngFor="let ingredient of report.ingredientUsage.slice(0, 8)">
+            <div class="bar-container">
+              <div class="cost-bar" 
+                   [style.height.%]="getBarHeight(ingredient.cost)"
+                   [title]="ingredient.ingredientName + ': $' + (ingredient.cost | number:'1.2-2')">
+              </div>
+            </div>
+            <div class="bar-label">{{ getShortName(ingredient.ingredientName) }}</div>
+            <div class="bar-value">${{ ingredient.cost | number:'1.0-0' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

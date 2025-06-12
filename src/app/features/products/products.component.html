@@ -1,0 +1,27 @@
+<div class="products-container">
+  <!-- Header Section -->
+  <div class="products-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="text-2xl font-bold">Gestión de Productos</h1>
+        <p class="text-muted">Administra tu catálogo de productos y recetas</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card" *ngIf="products$ | async as products">
+          <div class="stat-icon gradient-success">
+            <i class="bi bi-box"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ products.length }}</div>
+            <div class="stat-label">Productos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="products-main">
+    <app-product-list></app-product-list>
+  </div>
+</div>

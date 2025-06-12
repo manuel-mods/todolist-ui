@@ -1,0 +1,115 @@
+<div class="customer-list-container">
+  <!-- Section Header -->
+  <div class="section-header">
+    <h2 class="section-title">
+      <i class="bi bi-people-fill"></i>
+      Lista de Clientes
+    </h2>
+    <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+      <i class="bi bi-person-plus"></i>
+      Agregar Cliente
+    </button>
+  </div>
+  
+  <div class="customers-content" *ngIf="customers$ | async as customers; else loadingCustomers">
+    <!-- Empty State -->
+    <div *ngIf="customers.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-people"></i>
+      </div>
+      <h3>No hay clientes registrados</h3>
+      <p>Comienza agregando tus primeros clientes para llevar un mejor control</p>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <i class="bi bi-person-plus"></i>
+        Agregar Primer Cliente
+      </button>
+    </div>
+
+    <!-- Customers Grid -->
+    <div class="customers-grid" *ngIf="customers.length > 0">
+      <div 
+        class="customer-card animate-fade-in" 
+        *ngFor="let customer of customers; trackBy: trackCustomer"
+      >
+        <div class="card-header">
+          <div class="customer-avatar">
+            <div class="avatar-circle">
+              {{ getCustomerInitials(customer.name) }}
+            </div>
+            <div class="customer-status">
+              <span class="status-dot" [class.active]="customer.totalPurchases > 0"></span>
+            </div>
+          </div>
+          
+          <div class="customer-info">
+            <h3 class="customer-name">{{ customer.name }}</h3>
+            <p class="customer-email" *ngIf="customer.email">
+              <i class="bi bi-envelope"></i>
+              {{ customer.email }}
+            </p>
+            <p class="customer-phone" *ngIf="customer.phone">
+              <i class="bi bi-telephone"></i>
+              {{ formatPhoneNumber(customer.phone) }}
+            </p>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <div class="customer-details">
+            <div class="detail-row" *ngIf="customer.address">
+              <i class="bi bi-geo-alt"></i>
+              <span>{{ customer.address }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="customer.birthDate">
+              <i class="bi bi-calendar-event"></i>
+              <span>{{ customer.birthDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="customer.notes">
+              <i class="bi bi-chat-text"></i>
+              <span>{{ customer.notes }}</span>
+            </div>
+          </div>
+          
+          <div class="purchase-summary">
+            <div class="purchase-stats">
+              <div class="stat-item">
+                <span class="stat-label">Total Compras:</span>
+                <span class="stat-value">${{ customer.totalPurchases | number:'1.2-2' }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Última Compra:</span>
+                <span class="stat-value">{{ getLastPurchaseText(customer.lastPurchaseDate) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-actions">
+          <button 
+            class="btn btn-secondary btn-sm"
+            (click)="editCustomer(customer)"
+          >
+            <i class="bi bi-pencil"></i>
+            Editar
+          </button>
+          <button 
+            class="btn btn-ghost btn-sm text-error"
+            (click)="deleteCustomer(customer.id)"
+          >
+            <i class="bi bi-trash"></i>
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template #loadingCustomers>
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Cargando clientes...</p>
+    </div>
+  </ng-template>
+</div>

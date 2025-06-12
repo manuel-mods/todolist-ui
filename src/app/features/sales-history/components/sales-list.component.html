@@ -1,0 +1,151 @@
+<div class="sales-list-container">
+  <!-- Section Header -->
+  <div class="section-header">
+    <h2 class="section-title">
+      <i class="bi bi-clipboard-data"></i>
+      Historial de Ventas
+    </h2>
+    <div class="stats-summary">
+      <div class="stat-mini">
+        <div class="stat-number">{{ totalSales }}</div>
+        <div class="stat-label">Ventas</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-number">${{ totalRevenue | number:'1.2-2' }}</div>
+        <div class="stat-label">Ingresos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-header">
+      <h3 class="filters-title">
+        <i class="bi bi-funnel"></i>
+        Filtros
+      </h3>
+      <button class="btn btn-ghost btn-sm" (click)="clearFilters()">
+        <i class="bi bi-arrow-clockwise"></i>
+        Limpiar
+      </button>
+    </div>
+    <div class="filters-content">
+      <div class="filter-group">
+        <label class="form-label">Fecha desde:</label>
+        <input
+          type="date"
+          [(ngModel)]="dateFilter.from"
+          (change)="applyFilters()"
+          class="form-control"
+        />
+      </div>
+      <div class="filter-group">
+        <label class="form-label">Fecha hasta:</label>
+        <input
+          type="date"
+          [(ngModel)]="dateFilter.to"
+          (change)="applyFilters()"
+          class="form-control"
+        />
+      </div>
+      <div class="filter-group">
+        <label class="form-label">Método de pago:</label>
+        <select
+          [(ngModel)]="paymentFilter"
+          (change)="applyFilters()"
+          class="form-select"
+        >
+          <option value="">Todos los métodos</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="tarjeta">Tarjeta</option>
+          <option value="transferencia">Transferencia</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales Content -->
+  <div class="sales-content" *ngIf="filteredSales$ | async as sales; else loadingSales">
+    <!-- Empty State -->
+    <div *ngIf="sales.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-search"></i>
+      </div>
+      <h3>No se encontraron ventas</h3>
+      <p>No hay ventas que coincidan con los filtros aplicados</p>
+    </div>
+
+    <!-- Sales Grid -->
+    <div class="sales-grid" *ngIf="sales.length > 0">
+      <div 
+        class="sale-card animate-fade-in" 
+        *ngFor="let sale of sales; trackBy: trackSale"
+      >
+        <div class="sale-header">
+          <div class="sale-info">
+            <h4 class="sale-number">Venta #{{ sale.id }}</h4>
+            <p class="sale-date">{{ sale.date | date:'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+          <div class="payment-badge">
+            <span class="badge" [class]="getPaymentMethodBadgeClass(sale.paymentMethod)">
+              <i [class]="getPaymentMethodIcon(sale.paymentMethod)"></i>
+              {{ getPaymentMethodLabel(sale.paymentMethod) }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="sale-body">
+          <div class="customer-info" *ngIf="sale.customerName">
+            <i class="bi bi-person"></i>
+            <span>{{ sale.customerName }}</span>
+          </div>
+          
+          <div class="sale-items">
+            <h5 class="items-title">
+              <i class="bi bi-bag"></i>
+              Productos ({{ sale.items.length }})
+            </h5>
+            <div class="items-list">
+              <div class="sale-item" *ngFor="let item of sale.items">
+                <div class="item-info">
+                  <span class="item-name">{{ item.productName }}</span>
+                  <span class="item-quantity">{{ item.quantity }} × ${{ item.unitPrice | number:'1.2-2' }}</span>
+                </div>
+                <span class="item-total">${{ item.totalPrice | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="sale-summary">
+            <div class="summary-line">
+              <span>Subtotal:</span>
+              <span>${{ sale.subtotal | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-line">
+              <span>IVA (18%):</span>
+              <span>${{ sale.tax | number:'1.2-2' }}</span>
+            </div>
+            <div class="summary-total">
+              <span>Total:</span>
+              <span>${{ sale.total | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="sale-actions">
+          <button class="btn btn-primary btn-sm" (click)="printReceipt(sale)">
+            <i class="bi bi-printer"></i>
+            Imprimir Recibo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template #loadingSales>
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Cargando ventas...</p>
+    </div>
+  </ng-template>
+</div>

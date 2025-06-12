@@ -1,0 +1,221 @@
+<div class="pos-container">
+  <!-- Header with Stats -->
+  <div class="pos-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="text-2xl font-bold">Punto de Venta</h1>
+        <p class="text-muted">Gestiona las ventas de la pastelería</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon gradient-primary">
+            <i class="bi bi-cart-check"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ cartItems.length }}</div>
+            <div class="stat-label">Productos</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gradient-success">
+            <i class="bi bi-currency-dollar"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">${{ total | number:'1.2-2' }}</div>
+            <div class="stat-label">Total</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pos-main">
+    <!-- Products Grid -->
+    <div class="products-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="bi bi-grid-3x3-gap-fill"></i>
+          Productos Disponibles
+        </h2>
+      </div>
+      
+      <div class="products-grid" *ngIf="productsWithPrices$ | async as products">
+        <div 
+          class="product-card animate-fade-in" 
+          *ngFor="let product of products; trackBy: trackProduct"
+          (click)="addToCart(product)"
+        >
+          <div class="product-visual">
+            <div class="product-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="12" r="6" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="currentColor" stroke-width="2"/>
+                <circle cx="16" cy="25" r="3" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="product-badge">
+              <span class="badge badge-primary">Disponible</span>
+            </div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <div class="product-pricing">
+              <div class="selling-price">${{ product.sellingPrice | number:'1.2-2' }}</div>
+              <div class="cost-price">Costo: ${{ product.cost | number:'1.2-2' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="(productsWithPrices$ | async)?.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i class="bi bi-inbox"></i>
+        </div>
+        <h3>No hay productos disponibles</h3>
+        <p>Agrega productos desde el módulo de gestión para comenzar a vender</p>
+      </div>
+    </div>
+
+    <!-- Shopping Cart -->
+    <div class="cart-section">
+      <div class="cart-header">
+        <h2 class="section-title">
+          <i class="bi bi-cart3"></i>
+          Carrito de Compras
+        </h2>
+        <button 
+          *ngIf="cartItems.length > 0" 
+          class="btn btn-ghost btn-sm"
+          (click)="clearCart()"
+        >
+          <i class="bi bi-trash"></i>
+          Limpiar
+        </button>
+      </div>
+
+      <div class="cart-content">
+        <!-- Empty Cart State -->
+        <div *ngIf="cartItems.length === 0" class="empty-cart">
+          <div class="empty-cart-icon">
+            <i class="bi bi-cart-x"></i>
+          </div>
+          <h3>Carrito vacío</h3>
+          <p>Selecciona productos para agregar al carrito</p>
+        </div>
+
+        <!-- Cart Items -->
+        <div class="cart-items" *ngIf="cartItems.length > 0">
+          <div 
+            class="cart-item animate-slide-in-up" 
+            *ngFor="let item of cartItems; trackBy: trackCartItem"
+          >
+            <div class="item-info">
+              <h4 class="item-name">{{ item.productName }}</h4>
+              <p class="item-price">${{ item.unitPrice | number:'1.2-2' }} c/u</p>
+            </div>
+            <div class="item-controls">
+              <div class="quantity-selector">
+                <button 
+                  class="btn btn-ghost btn-sm"
+                  (click)="updateQuantity(item.productId, item.quantity - 1)"
+                >
+                  <i class="bi bi-dash"></i>
+                </button>
+                <span class="quantity">{{ item.quantity }}</span>
+                <button 
+                  class="btn btn-ghost btn-sm"
+                  (click)="updateQuantity(item.productId, item.quantity + 1)"
+                >
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+              <div class="item-total">${{ item.totalPrice | number:'1.2-2' }}</div>
+              <button 
+                class="btn btn-ghost btn-sm text-error"
+                (click)="removeFromCart(item.productId)"
+              >
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Totals -->
+        <div class="cart-summary" *ngIf="cartItems.length > 0">
+          <div class="summary-line">
+            <span>Subtotal</span>
+            <span>${{ subtotal | number:'1.2-2' }}</span>
+          </div>
+          <div class="summary-line">
+            <span>IVA (18%)</span>
+            <span>${{ tax | number:'1.2-2' }}</span>
+          </div>
+          <div class="summary-total">
+            <span>Total</span>
+            <span>${{ total | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <!-- Customer & Payment -->
+        <div class="checkout-section" *ngIf="cartItems.length > 0">
+          <div class="form-group">
+            <label class="form-label">Cliente (opcional)</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="customerName"
+              placeholder="Nombre del cliente"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Método de pago</label>
+            <div class="payment-options">
+              <label class="payment-option">
+                <input 
+                  type="radio" 
+                  name="payment" 
+                  value="efectivo" 
+                  [(ngModel)]="paymentMethod"
+                >
+                <div class="payment-card">
+                  <i class="bi bi-cash"></i>
+                  <span>Efectivo</span>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input 
+                  type="radio" 
+                  name="payment" 
+                  value="tarjeta" 
+                  [(ngModel)]="paymentMethod"
+                >
+                <div class="payment-card">
+                  <i class="bi bi-credit-card"></i>
+                  <span>Tarjeta</span>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input 
+                  type="radio" 
+                  name="payment" 
+                  value="transferencia" 
+                  [(ngModel)]="paymentMethod"
+                >
+                <div class="payment-card">
+                  <i class="bi bi-bank"></i>
+                  <span>Transferencia</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn-success btn-lg w-100" (click)="processSale()">
+            <i class="bi bi-check-circle"></i>
+            Procesar Venta - ${{ total | number:'1.2-2' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,107 @@
+<div class="product-list-container">
+  <!-- Section Header -->
+  <div class="section-header">
+    <h2 class="section-title">
+      <i class="bi bi-grid-3x3-gap-fill"></i>
+      Lista de Productos
+    </h2>
+    <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+      <i class="bi bi-plus-circle"></i>
+      Crear Producto
+    </button>
+  </div>
+  
+  <div class="products-content" *ngIf="productsWithDetails$ | async as products; else loadingProducts">
+    <!-- Empty State -->
+    <div *ngIf="products.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-box"></i>
+      </div>
+      <h3>No hay productos registrados</h3>
+      <p>Crea tu primer producto combinando ingredientes</p>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <i class="bi bi-plus-circle"></i>
+        Crear Primer Producto
+      </button>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid" *ngIf="products.length > 0">
+      <div 
+        class="product-card animate-fade-in" 
+        *ngFor="let product of products; trackBy: trackProduct"
+      >
+        <div class="card-visual">
+          <div class="product-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="4" y="6" width="24" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 12h16M8 16h12M8 20h8" stroke="currentColor" stroke-width="2"/>
+              <circle cx="24" cy="8" r="2" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="product-badge">
+            <span class="badge badge-primary">Activo</span>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <h3 class="product-name">{{ product.name }}</h3>
+          
+          <div class="cost-summary">
+            <div class="cost-item">
+              <span class="cost-label">Costo Total:</span>
+              <span class="cost-value">${{ product.cost | number:'1.2-2' }}</span>
+            </div>
+            <div class="cost-item">
+              <span class="cost-label">Precio Venta:</span>
+              <span class="cost-value selling-price">${{ (product.cost * 1.5) | number:'1.2-2' }}</span>
+            </div>
+          </div>
+          
+          <div class="ingredients-section">
+            <h4 class="ingredients-title">
+              <i class="bi bi-list-check"></i>
+              Ingredientes ({{ product.ingredientDetails.length }})
+            </h4>
+            <div class="ingredients-list">
+              <div 
+                class="ingredient-item" 
+                *ngFor="let ingredient of product.ingredientDetails"
+              >
+                <div class="ingredient-info">
+                  <span class="ingredient-name">{{ ingredient.name }}</span>
+                  <span class="ingredient-quantity">{{ ingredient.quantity }} {{ ingredient.unit }}</span>
+                </div>
+                <span class="ingredient-cost">${{ ingredient.cost | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-actions">
+          <button 
+            class="btn btn-secondary btn-sm"
+            (click)="editProduct(product)"
+          >
+            <i class="bi bi-pencil"></i>
+            Editar
+          </button>
+          <button 
+            class="btn btn-ghost btn-sm text-error"
+            (click)="deleteProduct(product.id)"
+          >
+            <i class="bi bi-trash"></i>
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template #loadingProducts>
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Cargando productos...</p>
+    </div>
+  </ng-template>
+</div>

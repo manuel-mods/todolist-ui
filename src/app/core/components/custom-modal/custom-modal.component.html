@@ -1,0 +1,31 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">{{ title }}</h5>
+    <!-- <button type="button" class="close" aria-label="Close" class="btn btn-sm btn-primary" (click)="onCancel()">
+      <span aria-hidden="true"><i class="fa fa-close"></i></span>
+    </button> -->
+  </div>
+  <div class="modal-body">
+    <div>{{ message }}</div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-sm btn-secondary" (click)="onCancel()">
+      Cancelar
+    </button>
+    @if (!loading) {
+    <button type="button" class="btn btn-sm btn-primary" (click)="onConfirm()">
+      Aceptar
+    </button>
+    } @if (loading) {
+    <button type="button" class="btn btn-sm btn-primary" (click)="onConfirm()">
+      <i class="fa fa-spinner fa-spin"></i>
+      Cargando...
+    </button>
+    }
+  </div>
+  @if (loading) {
+  <div class="modal-overlay"></div>
+  }
+  <!-- <img src='assets/loading.gif' alt='Logo' class='logo-loading h-100'> -->
+</div>
+<!-- Fondo oscuro semitransparente -->

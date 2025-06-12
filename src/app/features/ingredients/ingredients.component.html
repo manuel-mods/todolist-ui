@@ -1,0 +1,27 @@
+<div class="ingredients-container">
+  <!-- Header Section -->
+  <div class="ingredients-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="text-2xl font-bold">Gestión de Ingredientes</h1>
+        <p class="text-muted">Administra los ingredientes disponibles para tus productos</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card" *ngIf="ingredients$ | async as ingredients">
+          <div class="stat-icon gradient-primary">
+            <i class="bi bi-box-seam"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ ingredients.length }}</div>
+            <div class="stat-label">Ingredientes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="ingredients-main">
+    <app-ingredient-list></app-ingredient-list>
+  </div>
+</div>

@@ -1,0 +1,115 @@
+<div class="customer-report">
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="card-icon gradient-primary">
+        <i class="bi bi-people"></i>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">Total Clientes</h3>
+        <p class="card-value">{{ report.totalCustomers }}</p>
+        <p class="card-period">Registrados</p>
+      </div>
+    </div>
+    
+    <div class="summary-card">
+      <div class="card-icon gradient-success">
+        <i class="bi bi-person-plus"></i>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">Nuevos Este Mes</h3>
+        <p class="card-value">{{ report.newCustomersThisMonth }}</p>
+        <p class="card-period">Clientes nuevos</p>
+      </div>
+    </div>
+    
+    <div class="summary-card">
+      <div class="card-icon gradient-warning">
+        <i class="bi bi-person-check"></i>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">Clientes Activos</h3>
+        <p class="card-value">{{ report.activeCustomers }}</p>
+        <p class="card-period">Con compras</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Customers Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <h3 class="table-title">
+        <i class="bi bi-trophy"></i>
+        Mejores Clientes
+      </h3>
+    </div>
+    <div class="table-content">
+      <div class="customer-cards">
+        <div class="customer-card" *ngFor="let customer of report.topCustomers; let i = index">
+          <div class="customer-rank">
+            <div class="rank-badge" [class]="getRankClass(i)">
+              {{ i + 1 }}
+            </div>
+          </div>
+          <div class="customer-info">
+            <h4 class="customer-name">{{ customer.customerName }}</h4>
+            <div class="customer-stats">
+              <div class="stat-item">
+                <i class="bi bi-currency-dollar"></i>
+                <span class="stat-value">${{ customer.totalPurchases | number:'1.2-2' }}</span>
+                <span class="stat-label">en compras</span>
+              </div>
+              <div class="stat-item">
+                <i class="bi bi-bag"></i>
+                <span class="stat-value">{{ customer.totalOrders }}</span>
+                <span class="stat-label">órdenes</span>
+              </div>
+              <div class="stat-item">
+                <i class="bi bi-calendar"></i>
+                <span class="stat-value">{{ customer.lastPurchaseDate | date:'dd/MM/yyyy' }}</span>
+                <span class="stat-label">última compra</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Growth Chart -->
+  <div class="chart-container">
+    <div class="chart-header">
+      <h3 class="chart-title">
+        <i class="bi bi-graph-up"></i>
+        Crecimiento de Clientes
+      </h3>
+    </div>
+    <div class="chart-content">
+      <div class="growth-chart">
+        <div class="chart-bars">
+          <div class="bar-group" *ngFor="let data of report.customerGrowthData">
+            <div class="bar-container">
+              <div class="bar new-customers" 
+                   [style.height.%]="getBarHeight(data.newCustomers, getMaxNewCustomers())">
+              </div>
+              <div class="bar total-customers" 
+                   [style.height.%]="getBarHeight(data.totalCustomers, getMaxTotalCustomers())">
+              </div>
+            </div>
+            <div class="bar-label">{{ data.month }}</div>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item">
+            <div class="legend-color new-customers"></div>
+            <span>Nuevos Clientes</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color total-customers"></div>
+            <span>Total Clientes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
