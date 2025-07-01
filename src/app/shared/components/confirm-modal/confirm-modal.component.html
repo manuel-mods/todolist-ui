@@ -1,0 +1,16 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ title }}</h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()" [disabled]="loading" [style.opacity]="loading ? '0.3' : '1'" [style.cursor]="loading ? 'not-allowed' : 'pointer'"></button>
+</div>
+<div class="modal-body">
+  <p class="mb-0">{{ message }}</p>
+</div>
+<div class="modal-footer justify-content-end">
+  <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="loading">
+    {{ cancelText }}
+  </button>
+  <button type="button" class="btn" [ngClass]="getButtonClass()" (click)="confirm()" [disabled]="loading">
+    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+    {{ confirmText }}
+  </button>
+</div>

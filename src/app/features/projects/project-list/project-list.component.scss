@@ -1,0 +1,338 @@
+.project-list-container {
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+
+    h1 {
+      margin: 0;
+      color: #2c3e50;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &.btn-primary {
+        background: #3498db;
+        color: white;
+
+        &:hover {
+          background: #2980b9;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+      }
+    }
+  }
+
+  .create-form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    h3 {
+      margin: 0 0 20px;
+      color: #2c3e50;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: 500;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: all 0.3s;
+
+        &:focus {
+          outline: none;
+          border-color: #3498db;
+          box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        &.is-invalid {
+          border-color: #e74c3c;
+        }
+      }
+
+      .error-message {
+        margin-top: 5px;
+        color: #e74c3c;
+        font-size: 14px;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+
+        &.btn-success {
+          background: #27ae60;
+          color: white;
+
+          &:hover:not(:disabled) {
+            background: #229954;
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+
+        &.btn-secondary {
+          background: #95a5a6;
+          color: white;
+
+          &:hover {
+            background: #7f8c8d;
+          }
+        }
+      }
+    }
+  }
+
+  .alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+
+    &.alert-danger {
+      background-color: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+  }
+
+  .loading-container {
+    text-align: center;
+    padding: 60px 20px;
+
+    i {
+      font-size: 48px;
+      color: #3498db;
+      margin-bottom: 20px;
+    }
+
+    p {
+      color: #7f8c8d;
+      font-size: 18px;
+    }
+  }
+
+  .projects-container {
+    .projects-section {
+      margin-bottom: 50px;
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+        color: #2c3e50;
+        font-size: 24px;
+        font-weight: 600;
+        
+        i {
+          font-size: 22px;
+        }
+      }
+    }
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+
+    .project-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      }
+
+      &.shared {
+        border-left: 4px solid #3498db;
+        
+        .project-icon {
+          background: #e3f2fd;
+          
+          i {
+            color: #3498db;
+          }
+        }
+      }
+
+      .project-link {
+        display: block;
+        padding: 30px;
+        text-decoration: none;
+        color: inherit;
+
+        .project-icon {
+          width: 60px;
+          height: 60px;
+          background: #e3f2fd;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 20px;
+
+          i {
+            font-size: 28px;
+            color: #3498db;
+          }
+        }
+
+        h3 {
+          margin: 0 0 15px;
+          color: #2c3e50;
+          font-size: 20px;
+        }
+
+        .project-meta {
+          display: flex;
+          gap: 20px;
+          color: #7f8c8d;
+          font-size: 14px;
+
+          span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            i {
+              font-size: 16px;
+            }
+          }
+        }
+
+        .project-owner {
+          margin-top: 15px;
+          padding-top: 15px;
+          border-top: 1px solid #eee;
+          color: #3498db;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+
+    i {
+      font-size: 64px;
+      color: #bdc3c7;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      color: #7f8c8d;
+      font-size: 24px;
+    }
+
+    p {
+      color: #95a5a6;
+      margin-bottom: 30px;
+    }
+  }
+}
+
+.table-row-hover:hover {
+  background-color: var(--bs-light) !important;
+}
+
+.table th {
+  font-weight: 600;
+  color: var(--bs-dark);
+  border-bottom: 2px solid var(--bs-border-color);
+}
+
+.dropdown-toggle::after {
+  display: none;
+}
+
+.card {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.dropdown-item {
+  &[type="button"] {
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+}
+
+@media (max-width: 768px) {
+  .project-list-container {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .projects-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

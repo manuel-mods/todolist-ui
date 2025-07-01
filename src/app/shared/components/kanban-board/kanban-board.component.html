@@ -1,0 +1,360 @@
+<!-- Loading State -->
+<div class="d-flex justify-content-center align-items-center" style="height: 400px;" *ngIf="loading">
+  <div class="text-center">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-muted">Loading tasks...</p>
+  </div>
+</div>
+
+<!-- Kanban Board -->
+<div class="kanban-container" *ngIf="!loading">
+  <!-- Enhanced Statistics Cards -->
+  <div class="stats-grid mb-4">
+    <div class="stat-card stat-created" [attr.data-count]="getStatistics().created">
+      <div class="stat-icon">
+        <i class="fas fa-plus-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ getStatistics().created }}</div>
+        <div class="stat-label">Created</div>
+      </div>
+    </div>
+    
+    <div class="stat-card stat-in-progress" [attr.data-count]="getStatistics().inProgress">
+      <div class="stat-icon">
+        <i class="fas fa-play-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ getStatistics().inProgress }}</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+    </div>
+    
+    <div class="stat-card stat-blocked" [attr.data-count]="getStatistics().blocked">
+      <div class="stat-icon">
+        <i class="fas fa-ban"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ getStatistics().blocked }}</div>
+        <div class="stat-label">Blocked</div>
+      </div>
+    </div>
+    
+    <div class="stat-card stat-testing" [attr.data-count]="getStatistics().testing">
+      <div class="stat-icon">
+        <i class="fas fa-flask"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ getStatistics().testing }}</div>
+        <div class="stat-label">Testing</div>
+      </div>
+    </div>
+    
+    <div class="stat-card stat-ready" [attr.data-count]="getStatistics().ready">
+      <div class="stat-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ getStatistics().ready }}</div>
+        <div class="stat-label">Ready</div>
+      </div>
+    </div>
+    
+    <div class="stat-card stat-finished" [attr.data-count]="getStatistics().finished">
+      <div class="stat-icon">
+        <i class="fas fa-trophy"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-number">{{ getStatistics().finished }}</div>
+        <div class="stat-label">Finished</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kanban Board -->
+  <div class="kanban-board">
+    <!-- Created Column -->
+    <div class="kanban-column column-created">
+      <div class="column-header">
+        <div class="column-title">
+          <h3>Created</h3>
+          <span class="task-count">{{ getTasksByStatus('CREATED').length }}</span>
+        </div>
+        <button class="add-task-btn" (click)="createTask('CREATED')" *ngIf="allowCreateTask">
+          <i class="fas fa-plus"></i>
+          Add task
+        </button>
+      </div>
+      <div class="column-content"
+           cdkDropList
+           id="created-list"
+           [cdkDropListData]="getTasksByStatus('CREATED')"
+           cdkDropListConnectedTo="['in-progress-list', 'blocked-list', 'testing-list', 'ready-list', 'finished-list']"
+           (cdkDropListDropped)="onTaskDrop($event, TaskStatus.CREATED)">
+        <div class="task-card"
+             *ngFor="let task of getTasksByStatus('CREATED'); trackBy: trackByTaskId"
+             cdkDrag
+             [cdkDragData]="task"
+             (click)="openTaskDetail(task)">
+          <div class="task-priority" [class]="'priority-' + (task.priority || 'medium')"></div>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-project" *ngIf="showProject">
+            <span class="project-badge">{{ getProjectName(task.projectId) }}</span>
+          </div>
+          <div class="task-description" *ngIf="task.description">
+            {{ task.description }}
+          </div>
+          <div class="task-meta">
+            <div class="task-labels">
+              <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
+            </div>
+            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+              {{ getAssigneeInitials(task.assignedTo) }}
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="getTasksByStatus('CREATED').length === 0">
+          <i class="fas fa-plus-circle"></i>
+          <p>No tasks yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- In Progress Column -->
+    <div class="kanban-column column-progress">
+      <div class="column-header">
+        <div class="column-title">
+          <h3>In Progress</h3>
+          <span class="task-count">{{ getTasksByStatus('IN_PROGRESS').length }}</span>
+        </div>
+        <button class="add-task-btn" (click)="createTask('IN_PROGRESS')" *ngIf="allowCreateTask">
+          <i class="fas fa-plus"></i>
+          Add task
+        </button>
+      </div>
+      <div class="column-content"
+           cdkDropList
+           id="in-progress-list"
+           [cdkDropListData]="getTasksByStatus('IN_PROGRESS')"
+           cdkDropListConnectedTo="['created-list', 'blocked-list', 'testing-list', 'ready-list', 'finished-list']"
+           (cdkDropListDropped)="onTaskDrop($event, TaskStatus.IN_PROGRESS)">
+        <div class="task-card"
+             *ngFor="let task of getTasksByStatus('IN_PROGRESS'); trackBy: trackByTaskId"
+             cdkDrag
+             [cdkDragData]="task"
+             (click)="openTaskDetail(task)">
+          <div class="task-priority" [class]="'priority-' + (task.priority || 'medium')"></div>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-project" *ngIf="showProject">
+            <span class="project-badge">{{ getProjectName(task.projectId) }}</span>
+          </div>
+          <div class="task-description" *ngIf="task.description">
+            {{ task.description }}
+          </div>
+          <div class="task-meta">
+            <div class="task-labels">
+              <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
+            </div>
+            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+              {{ getAssigneeInitials(task.assignedTo) }}
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="getTasksByStatus('IN_PROGRESS').length === 0">
+          <i class="fas fa-play-circle"></i>
+          <p>No tasks in progress</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blocked Column -->
+    <div class="kanban-column column-blocked">
+      <div class="column-header">
+        <div class="column-title">
+          <h3>Blocked</h3>
+          <span class="task-count">{{ getTasksByStatus('BLOCKED').length }}</span>
+        </div>
+        <button class="add-task-btn" (click)="createTask('BLOCKED')" *ngIf="allowCreateTask">
+          <i class="fas fa-plus"></i>
+          Add task
+        </button>
+      </div>
+      <div class="column-content"
+           cdkDropList
+           id="blocked-list"
+           [cdkDropListData]="getTasksByStatus('BLOCKED')"
+           cdkDropListConnectedTo="['created-list', 'in-progress-list', 'testing-list', 'ready-list', 'finished-list']"
+           (cdkDropListDropped)="onTaskDrop($event, TaskStatus.BLOCKED)">
+        <div class="task-card"
+             *ngFor="let task of getTasksByStatus('BLOCKED'); trackBy: trackByTaskId"
+             cdkDrag
+             [cdkDragData]="task"
+             (click)="openTaskDetail(task)">
+          <div class="task-priority" [class]="'priority-' + (task.priority || 'medium')"></div>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-project" *ngIf="showProject">
+            <span class="project-badge">{{ getProjectName(task.projectId) }}</span>
+          </div>
+          <div class="task-description" *ngIf="task.description">
+            {{ task.description }}
+          </div>
+          <div class="task-meta">
+            <div class="task-labels">
+              <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
+            </div>
+            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+              {{ getAssigneeInitials(task.assignedTo) }}
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="getTasksByStatus('BLOCKED').length === 0">
+          <i class="fas fa-ban"></i>
+          <p>No blocked tasks</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Testing Column -->
+    <div class="kanban-column column-testing">
+      <div class="column-header">
+        <div class="column-title">
+          <h3>Testing</h3>
+          <span class="task-count">{{ getTasksByStatus('TESTING').length }}</span>
+        </div>
+        <button class="add-task-btn" (click)="createTask('TESTING')" *ngIf="allowCreateTask">
+          <i class="fas fa-plus"></i>
+          Add task
+        </button>
+      </div>
+      <div class="column-content"
+           cdkDropList
+           id="testing-list"
+           [cdkDropListData]="getTasksByStatus('TESTING')"
+           cdkDropListConnectedTo="['created-list', 'in-progress-list', 'blocked-list', 'ready-list', 'finished-list']"
+           (cdkDropListDropped)="onTaskDrop($event, TaskStatus.TESTING)">
+        <div class="task-card"
+             *ngFor="let task of getTasksByStatus('TESTING'); trackBy: trackByTaskId"
+             cdkDrag
+             [cdkDragData]="task"
+             (click)="openTaskDetail(task)">
+          <div class="task-priority" [class]="'priority-' + (task.priority || 'medium')"></div>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-project" *ngIf="showProject">
+            <span class="project-badge">{{ getProjectName(task.projectId) }}</span>
+          </div>
+          <div class="task-description" *ngIf="task.description">
+            {{ task.description }}
+          </div>
+          <div class="task-meta">
+            <div class="task-labels">
+              <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
+            </div>
+            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+              {{ getAssigneeInitials(task.assignedTo) }}
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="getTasksByStatus('TESTING').length === 0">
+          <i class="fas fa-flask"></i>
+          <p>No tasks in testing</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ready to Finish Column -->
+    <div class="kanban-column column-ready">
+      <div class="column-header">
+        <div class="column-title">
+          <h3>Ready</h3>
+          <span class="task-count">{{ getTasksByStatus('READY_TO_FINISH').length }}</span>
+        </div>
+        <button class="add-task-btn" (click)="createTask('READY_TO_FINISH')" *ngIf="allowCreateTask">
+          <i class="fas fa-plus"></i>
+          Add task
+        </button>
+      </div>
+      <div class="column-content"
+           cdkDropList
+           id="ready-list"
+           [cdkDropListData]="getTasksByStatus('READY_TO_FINISH')"
+           cdkDropListConnectedTo="['created-list', 'in-progress-list', 'blocked-list', 'testing-list', 'finished-list']"
+           (cdkDropListDropped)="onTaskDrop($event, TaskStatus.READY_TO_FINISH)">
+        <div class="task-card"
+             *ngFor="let task of getTasksByStatus('READY_TO_FINISH'); trackBy: trackByTaskId"
+             cdkDrag
+             [cdkDragData]="task"
+             (click)="openTaskDetail(task)">
+          <div class="task-priority" [class]="'priority-' + (task.priority || 'medium')"></div>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-project" *ngIf="showProject">
+            <span class="project-badge">{{ getProjectName(task.projectId) }}</span>
+          </div>
+          <div class="task-description" *ngIf="task.description">
+            {{ task.description }}
+          </div>
+          <div class="task-meta">
+            <div class="task-labels">
+              <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
+            </div>
+            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+              {{ getAssigneeInitials(task.assignedTo) }}
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="getTasksByStatus('READY_TO_FINISH').length === 0">
+          <i class="fas fa-check-circle"></i>
+          <p>No tasks ready</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Finished Column -->
+    <div class="kanban-column column-finished">
+      <div class="column-header">
+        <div class="column-title">
+          <h3>Finished</h3>
+          <span class="task-count">{{ getTasksByStatus('FINISHED').length }}</span>
+        </div>
+        <button class="add-task-btn" (click)="createTask('FINISHED')" *ngIf="allowCreateTask">
+          <i class="fas fa-plus"></i>
+          Add task
+        </button>
+      </div>
+      <div class="column-content"
+           cdkDropList
+           id="finished-list"
+           [cdkDropListData]="getTasksByStatus('FINISHED')"
+           cdkDropListConnectedTo="['created-list', 'in-progress-list', 'blocked-list', 'testing-list', 'ready-list']"
+           (cdkDropListDropped)="onTaskDrop($event, TaskStatus.FINISHED)">
+        <div class="task-card"
+             *ngFor="let task of getTasksByStatus('FINISHED'); trackBy: trackByTaskId"
+             cdkDrag
+             [cdkDragData]="task"
+             (click)="openTaskDetail(task)">
+          <div class="task-priority" [class]="'priority-' + (task.priority || 'medium')"></div>
+          <div class="task-title">{{ task.title }}</div>
+          <div class="task-project" *ngIf="showProject">
+            <span class="project-badge">{{ getProjectName(task.projectId) }}</span>
+          </div>
+          <div class="task-description" *ngIf="task.description">
+            {{ task.description }}
+          </div>
+          <div class="task-meta">
+            <div class="task-labels">
+              <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
+            </div>
+            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+              {{ getAssigneeInitials(task.assignedTo) }}
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="getTasksByStatus('FINISHED').length === 0">
+          <i class="fas fa-trophy"></i>
+          <p>No finished tasks</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,259 @@
+<div class="task-detail-container" *ngIf="task()">
+  <!-- Header -->
+  <div class="task-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="task-title-section">
+        <div class="task-meta">
+          <span class="task-id">TASK-{{ task()!.id }}</span>
+          <span class="task-project">{{ task()!.projectId }}</span>
+        </div>
+        <div *ngIf="!isEditing()">
+          <h1 class="task-title">{{ task()!.title }}</h1>
+        </div>
+        <div *ngIf="isEditing()" class="edit-title">
+          <input 
+            type="text" 
+            formControlName="title"
+            [formGroup]="editForm"
+            class="title-input"
+            placeholder="Task title">
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="toggleEdit()" *ngIf="!isEditing()">
+        <i class="fas fa-edit"></i> Edit
+      </button>
+      <button class="btn btn-success" (click)="saveTask()" *ngIf="isEditing()" [disabled]="editForm.invalid">
+        <i class="fas fa-save"></i> Save
+      </button>
+      <button class="btn btn-secondary" (click)="toggleEdit()" *ngIf="isEditing()">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+    </div>
+  </div>
+
+  <div class="task-content">
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Description -->
+      <div class="section">
+        <h3>Description</h3>
+        <div *ngIf="!isEditing()" class="description-content">
+          <p *ngIf="task()!.description; else noDescription">{{ task()!.description }}</p>
+          <ng-template #noDescription>
+            <p class="no-description">No description provided</p>
+          </ng-template>
+        </div>
+        <div *ngIf="isEditing()">
+          <textarea 
+            formControlName="description"
+            [formGroup]="editForm"
+            class="description-input"
+            rows="4"
+            placeholder="Add a description..."></textarea>
+        </div>
+      </div>
+
+      <!-- Custom Fields (Mockup) -->
+      <div class="section">
+        <div class="section-header">
+          <h3>Custom Fields</h3>
+          <button class="toggle-btn" (click)="toggleCustomFields()">
+            <i class="fas" [class.fa-chevron-down]="!showCustomFields()" [class.fa-chevron-up]="showCustomFields()"></i>
+          </button>
+        </div>
+        
+        <div class="custom-fields" *ngIf="showCustomFields()">
+          <div class="field-row" *ngFor="let field of customFields()">
+            <label class="field-label">
+              {{ field.name }}
+              <span class="required" *ngIf="field.required">*</span>
+            </label>
+            
+            <!-- Text Field -->
+            <div *ngIf="field.type === 'text'" class="field-control">
+              <input 
+                type="text" 
+                class="form-control"
+                [value]="getCustomFieldValue(field.id)"
+                (change)="updateCustomField(field.id, $any($event).target.value)"
+                [placeholder]="'Enter ' + field.name.toLowerCase()">
+            </div>
+            
+            <!-- Select Field -->
+            <div *ngIf="field.type === 'select'" class="field-control">
+              <select 
+                class="form-control"
+                [value]="getCustomFieldValue(field.id)"
+                (change)="updateCustomField(field.id, $any($event).target.value)">
+                <option value="">Select {{ field.name }}</option>
+                <option *ngFor="let option of field.options" [value]="option">{{ option }}</option>
+              </select>
+            </div>
+            
+            <!-- Checkbox Field -->
+            <div *ngIf="field.type === 'checkbox'" class="field-control">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox"
+                  [checked]="getCustomFieldValue(field.id)"
+                  (change)="updateCustomField(field.id, $any($event).target.checked)">
+                <span class="checkmark"></span>
+                Enable {{ field.name }}
+              </label>
+            </div>
+            
+            <!-- Radio Field -->
+            <div *ngIf="field.type === 'radio'" class="field-control">
+              <div class="radio-group">
+                <label *ngFor="let option of field.options" class="radio-label">
+                  <input 
+                    type="radio"
+                    [name]="'field_' + field.id"
+                    [value]="option"
+                    [checked]="getCustomFieldValue(field.id) === option"
+                    (change)="updateCustomField(field.id, option)">
+                  <span class="radio-mark"></span>
+                  {{ option }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments & Activity -->
+      <div class="section">
+        <h3>Comments & Activity</h3>
+        
+        <!-- Add Comment -->
+        <div class="add-comment">
+          <form [formGroup]="commentForm" (ngSubmit)="addComment()">
+            <div class="comment-input-group">
+              <textarea 
+                formControlName="comment"
+                class="comment-input"
+                rows="3"
+                placeholder="Add a comment..."></textarea>
+              <button type="submit" class="btn-primary" [disabled]="commentForm.invalid">
+                <i class="fas fa-comment"></i> Add Comment
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Activity Timeline -->
+        <div class="activity-timeline">
+          <div class="timeline-item" *ngFor="let comment of comments(); trackBy: trackComment">
+            <div class="timeline-marker">
+              <div class="marker-icon" [class]="comment.changeType">
+                <i *ngIf="comment.changeType === 'comment'" class="fas fa-comment"></i>
+                <i *ngIf="comment.changeType === 'status_change'" class="fas fa-exchange-alt"></i>
+                <i *ngIf="comment.changeType === 'assignment'" class="fas fa-user"></i>
+              </div>
+            </div>
+            <div class="timeline-content">
+              <div class="activity-header">
+                <span class="user-name">{{ comment.user?.name || comment.user?.email }}</span>
+                <span class="activity-action">{{ formatChangeType(comment.changeType) }}</span>
+                <span class="activity-time">{{ comment.createdAt | date:'MMM d, h:mm a' }}</span>
+              </div>
+              <div class="activity-body">
+                <!-- Comment Content -->
+                <div *ngIf="comment.changeType === 'comment'" class="comment-content">
+                  {{ comment.newValue }}
+                </div>
+                
+                <!-- Status Change -->
+                <div *ngIf="comment.changeType === 'status_change'" class="status-change">
+                  <span class="status-badge" [style.background-color]="getStatusColor(comment.oldValue || '')">
+                    <i [class]="getStatusIcon(comment.oldValue || '')"></i>
+                    {{ comment.oldValue }}
+                  </span>
+                  <i class="fas fa-arrow-right arrow"></i>
+                  <span class="status-badge" [style.background-color]="getStatusColor(comment.newValue || '')">
+                    <i [class]="getStatusIcon(comment.newValue || '')"></i>
+                    {{ comment.newValue }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Status -->
+      <div class="sidebar-section">
+        <h4>Status</h4>
+        <div class="status-selector">
+          <button 
+            *ngFor="let status of [TaskStatus.CREATED, TaskStatus.IN_PROGRESS, TaskStatus.FINISHED]"
+            class="status-btn"
+            [class.active]="task()!.status === status"
+            (click)="updateStatus(status)">
+            <i [class]="getStatusIcon(status)"></i>
+            {{ status.replace('_', ' ') | titlecase }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Fields -->
+      <div class="sidebar-section">
+        <h4>Details</h4>
+        <div class="quick-fields">
+          <div class="quick-field">
+            <label>Created</label>
+            <span>{{ task()!.createdAt | date:'MMM d, yyyy' }}</span>
+          </div>
+          <div class="quick-field">
+            <label>Updated</label>
+            <span>{{ task()!.updatedAt | date:'MMM d, yyyy' }}</span>
+          </div>
+          <div class="quick-field">
+            <label>Project</label>
+            <span>{{ task()!.projectId }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="sidebar-section">
+        <h4>Actions</h4>
+        <div class="action-buttons">
+          <button class="action-btn">
+            <i class="fas fa-copy"></i> Duplicate
+          </button>
+          <button class="action-btn">
+            <i class="fas fa-share"></i> Share
+          </button>
+          <button class="action-btn">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading()">
+  <i class="fas fa-spinner fa-spin"></i>
+  <p>Loading task...</p>
+</div>
+
+<!-- Error State -->
+<div class="error-container" *ngIf="error()">
+  <div class="alert">
+    {{ error() }}
+  </div>
+  <button class="btn btn-primary" (click)="goBack()">
+    <i class="fas fa-arrow-left"></i> Go Back
+  </button>
+</div>

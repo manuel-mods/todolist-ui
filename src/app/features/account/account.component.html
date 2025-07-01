@@ -1,0 +1,170 @@
+<div class="account-container">
+  <div class="page-header">
+    <h1 class="page-title">My Account</h1>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div class="alert alert-success" *ngIf="successMessage()">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage() }}
+  </div>
+
+  <div class="alert alert-danger" *ngIf="errorMessage()">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ errorMessage() }}
+  </div>
+
+  <div class="account-content">
+    <!-- Profile Card -->
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="avatar-section">
+          <div class="avatar-container">
+            <img 
+              [src]="currentUser()?.avatar || '/assets/default-avatar.png'" 
+              alt="Profile Avatar"
+              class="avatar-img"
+            >
+            <label class="avatar-upload">
+              <input 
+                type="file" 
+                accept="image/*" 
+                (change)="uploadAvatar($event)"
+                [disabled]="loading()"
+              >
+              <i class="fas fa-camera"></i>
+            </label>
+          </div>
+          <div class="user-info">
+            <h2>{{ currentUser()?.name || 'User' }}</h2>
+            <p>{{ currentUser()?.email }}</p>
+          </div>
+        </div>
+        <button 
+          class="btn btn-primary" 
+          (click)="toggleEdit()"
+          *ngIf="!isEditing()"
+        >
+          <i class="fas fa-edit"></i>
+          Edit Profile
+        </button>
+      </div>
+
+      <div class="profile-body">
+        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+          <div class="form-group">
+            <label for="name" class="form-label">Full Name</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="form-control"
+              [readonly]="!isEditing()"
+              [class.is-invalid]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
+            >
+            <div class="invalid-feedback" *ngIf="profileForm.get('name')?.invalid && profileForm.get('name')?.touched">
+              <small *ngIf="profileForm.get('name')?.errors?.['required']">Name is required</small>
+              <small *ngIf="profileForm.get('name')?.errors?.['minlength']">Name must be at least 2 characters</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="form-control"
+              readonly
+            >
+            <small class="form-text text-muted">Email cannot be changed</small>
+          </div>
+
+          <div class="form-actions" *ngIf="isEditing()">
+            <button 
+              type="submit" 
+              class="btn btn-success"
+              [disabled]="profileForm.invalid || loading()"
+            >
+              <i class="fas fa-save"></i>
+              Save Changes
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-secondary"
+              (click)="toggleEdit()"
+              [disabled]="loading()"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Account Statistics -->
+    <div class="stats-section">
+      <h3>Account Overview</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-folder"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">12</div>
+            <div class="stat-label">Total Projects</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-tasks"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">48</div>
+            <div class="stat-label">Total Tasks</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">35</div>
+            <div class="stat-label">Completed Tasks</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">5</div>
+            <div class="stat-label">Collaborators</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Actions -->
+    <div class="actions-section">
+      <h3>Account Actions</h3>
+      <div class="action-buttons">
+        <button class="btn btn-outline-primary">
+          <i class="fas fa-download"></i>
+          Export Data
+        </button>
+        <button class="btn btn-outline-warning">
+          <i class="fas fa-key"></i>
+          Change Password
+        </button>
+        <button class="btn btn-outline-danger">
+          <i class="fas fa-trash"></i>
+          Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

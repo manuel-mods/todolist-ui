@@ -1,0 +1,201 @@
+<!-- Page Header -->
+<app-page-header 
+  title="Calendar" 
+  subtitle="View tasks and projects in calendar format"
+  [actions]="headerActions">
+</app-page-header>
+
+<!-- Loading State -->
+<div class="d-flex justify-content-center align-items-center" style="height: 400px;" *ngIf="loading()">
+  <div class="text-center">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-muted">Loading calendar...</p>
+  </div>
+</div>
+
+<!-- Calendar Content -->
+<div class="container-fluid px-4 py-4" *ngIf="!loading()">
+  <!-- Calendar Controls -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-secondary" (click)="previousMonth()">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <h3 class="mb-0 fw-bold">{{ getCurrentMonthYear() }}</h3>
+        <button class="btn btn-outline-secondary" (click)="nextMonth()">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="d-flex justify-content-end gap-2">
+        <!-- View Toggle -->
+        <div class="btn-group" role="group">
+          <input type="radio" class="btn-check" name="viewOptions" id="monthView" 
+                 [checked]="currentView() === 'month'" (change)="setView('month')">
+          <label class="btn btn-outline-primary btn-sm" for="monthView">Month</label>
+          
+          <input type="radio" class="btn-check" name="viewOptions" id="weekView" 
+                 [checked]="currentView() === 'week'" (change)="setView('week')">
+          <label class="btn btn-outline-primary btn-sm" for="weekView">Week</label>
+          
+          <input type="radio" class="btn-check" name="viewOptions" id="dayView" 
+                 [checked]="currentView() === 'day'" (change)="setView('day')">
+          <label class="btn btn-outline-primary btn-sm" for="dayView">Day</label>
+        </div>
+        
+        <button class="btn btn-outline-secondary btn-sm" (click)="goToToday()">
+          Today
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="row">
+    <div class="col-lg-9">
+      <div class="card card-notion">
+        <div class="card-body p-0">
+          <!-- Weekday Headers -->
+          <div class="row g-0 border-bottom">
+            <div class="col text-center py-3 fw-bold text-muted border-end" 
+                 *ngFor="let day of weekDays; let last = last"
+                 [class.border-end-0]="last">
+              {{ day }}
+            </div>
+          </div>
+
+          <!-- Calendar Days -->
+          <div class="calendar-grid-container">
+            <div class="row g-0" *ngFor="let week of getWeeks(); let weekIndex = index">
+              <div class="col border-end calendar-day-cell" 
+                   *ngFor="let day of week; let last = last"
+                   [class.border-end-0]="last"
+                   [class.border-bottom-0]="isLastWeek(weekIndex)"
+                   [class.other-month]="!day.isCurrentMonth"
+                   [class.today]="day.isToday"
+                   (click)="selectDate(day.date)">
+                
+                <div class="p-2" style="min-height: 120px;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold" 
+                          [class.text-primary]="day.isToday"
+                          [class.text-muted]="!day.isCurrentMonth">
+                      {{ day.date.getDate() }}
+                    </span>
+                    <small class="text-muted" *ngIf="day.events.length > 0">
+                      {{ day.events.length }}
+                    </small>
+                  </div>
+                  
+                  <div class="events-container">
+                    <div class="event-item mb-1" 
+                         *ngFor="let event of day.events.slice(0, 3)"
+                         [style.background-color]="event.color"
+                         (click)="openEvent(event, $event)">
+                      <small class="text-white fw-medium">{{ event.title | slice:0:15 }}{{ event.title.length > 15 ? '...' : '' }}</small>
+                    </div>
+                    
+                    <div class="text-muted small" *ngIf="day.events.length > 3">
+                      +{{ day.events.length - 3 }} more
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Details Sidebar -->
+    <div class="col-lg-3">
+      <div class="card card-notion" *ngIf="selectedDate()">
+        <div class="card-header bg-transparent">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">{{ formatSelectedDate() }}</h5>
+            <button class="btn btn-sm btn-outline-secondary" (click)="closeSidebar()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <div class="events-list">
+            <div class="event-detail mb-3" 
+                 *ngFor="let event of getEventsForDate(selectedDate()!)"
+                 [class]="'event-' + event.type">
+              <div class="d-flex align-items-start">
+                <div class="event-icon me-2 mt-1">
+                  <i class="fas text-white p-2 rounded-circle"
+                     [class.fa-tasks]="event.type === 'task'" 
+                     [class.fa-folder]="event.type === 'project'"
+                     [style.background-color]="event.color"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ event.title }}</h6>
+                  <small class="text-muted">{{ event.type | titlecase }}</small>
+                  <span class="badge bg-light text-dark ms-2" *ngIf="event.status">
+                    {{ event.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-center py-4" *ngIf="getEventsForDate(selectedDate()!).length === 0">
+              <i class="fas fa-calendar-day fa-2x text-muted mb-2"></i>
+              <p class="text-muted">No events for this day</p>
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2 mt-3">
+            <button class="btn btn-primary btn-sm" (click)="openCreateTaskModal()">
+              <i class="fas fa-plus me-2"></i>Add Task
+            </button>
+            <button class="btn btn-outline-primary btn-sm" (click)="openCreateProjectModal()">
+              <i class="fas fa-folder-plus me-2"></i>Add Project
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Today's Events (when no date selected) -->
+      <div class="card card-notion" *ngIf="!selectedDate()">
+        <div class="card-header bg-transparent">
+          <h5 class="mb-0 fw-bold">Today's Events</h5>
+        </div>
+        <div class="card-body">
+          <div class="events-list">
+            <div class="event-detail mb-3" 
+                 *ngFor="let event of getTodaysEvents()"
+                 [class]="'event-' + event.type">
+              <div class="d-flex align-items-start">
+                <div class="event-icon me-2 mt-1">
+                  <i class="fas text-white p-2 rounded-circle"
+                     [class.fa-tasks]="event.type === 'task'" 
+                     [class.fa-folder]="event.type === 'project'"
+                     [style.background-color]="event.color"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ event.title }}</h6>
+                  <small class="text-muted">{{ event.type | titlecase }}</small>
+                  <span class="badge bg-light text-dark ms-2" *ngIf="event.status">
+                    {{ event.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-center py-4" *ngIf="getTodaysEvents().length === 0">
+              <i class="fas fa-calendar-check fa-2x text-muted mb-2"></i>
+              <p class="text-muted">No events today</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

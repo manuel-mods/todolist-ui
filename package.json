@@ -1,6 +1,6 @@
 {
-  "name": "pasteleria-app",
-  "version": "0.0.0",
+  "name": "todolist-ui",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -10,17 +10,22 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/cdk": "^19.2.19",
     "@angular/common": "^19.2.0",
     "@angular/compiler": "^19.2.0",
     "@angular/core": "^19.2.0",
+    "@angular/fire": "^19",
     "@angular/forms": "^19.2.0",
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
+    "@fortawesome/fontawesome-free": "^6.7.2",
     "@ng-bootstrap/ng-bootstrap": "^18.0.0",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.9",
+    "date-fns": "^4.1.0",
+    "firebase": "^11.9.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

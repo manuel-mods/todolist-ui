@@ -1,0 +1,73 @@
+<!-- Page Header -->
+<app-page-header 
+  title="Board" 
+  subtitle="Kanban view of all tasks across projects"
+  [actions]="headerActions"
+  [showFilters]="showFilters()">
+  
+  <!-- Filters Panel -->
+  <div class="card card-notion">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label small fw-medium">Project</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filters.project" (change)="applyFilters()">
+            <option value="">All Projects</option>
+            <option *ngFor="let project of projects()" [value]="project.id">{{ project.name }}</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-medium">Assignee</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filters.assignee" (change)="applyFilters()">
+            <option value="">All Assignees</option>
+            <option *ngFor="let user of users()" [value]="user.id">{{ user.name }}</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-medium">Priority</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filters.priority" (change)="applyFilters()">
+            <option value="">All Priorities</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-medium">Labels</label>
+          <select class="form-select form-select-sm" [(ngModel)]="filters.label" (change)="applyFilters()">
+            <option value="">All Labels</option>
+            <option *ngFor="let label of labels()" [value]="label.name">{{ label.name }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-medium">Search</label>
+          <input type="text" class="form-control form-control-sm" 
+                 placeholder="Search tasks..." 
+                 [(ngModel)]="filters.search"
+                 (keyup)="applyFilters()">
+        </div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" (click)="clearFilters()">
+            <i class="fas fa-times me-1"></i>Clear All
+          </button>
+        </div>
+        <small class="text-muted">{{ filteredTasks.length }} of {{ tasks().length }} tasks shown</small>
+      </div>
+    </div>
+  </div>
+</app-page-header>
+
+<!-- Shared Kanban Board Component -->
+<app-kanban-board
+  [tasks]="filteredTasks"
+  [projects]="projects()"
+  [users]="users()"
+  [loading]="loading()"
+  [showProject]="true"
+  [allowCreateTask]="true"
+  (taskStatusChanged)="onTaskStatusChanged($event)"
+  (taskCreated)="onTaskCreated($event)"
+  (taskUpdated)="onTaskUpdated($event)">
+</app-kanban-board>

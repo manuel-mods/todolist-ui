@@ -1,0 +1,71 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <i class="fas fa-check-circle logo"></i>
+      <h1>Welcome Back</h1>
+      <p>Sign in to your TodoList account</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            class="form-control"
+            [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+          />
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          <small *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</small>
+          <small *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            class="form-control"
+            [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          />
+          <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+            <i class="fas" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()"></i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          <small *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</small>
+          <small *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</small>
+        </div>
+      </div>
+
+      <div class="forgot-password">
+        <a routerLink="/auth/forgot-password">Forgot your password?</a>
+      </div>
+
+      <div class="alert alert-danger" *ngIf="error()">
+        {{ error() }}
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid || loading()">
+        <span *ngIf="!loading()">Sign In</span>
+        <span *ngIf="loading()">
+          <i class="fas fa-spinner fa-spin"></i> Signing in...
+        </span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Don't have an account? <a routerLink="/auth/register">Sign up</a></p>
+    </div>
+  </div>
+</div>

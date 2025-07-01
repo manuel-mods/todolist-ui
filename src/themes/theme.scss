@@ -1,0 +1,517 @@
+// =============================================================================
+// TodoList UI - Bootstrap Theme System (Notion-inspired)
+// =============================================================================
+
+// Import Bootstrap functions and variables first
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
+// =============================================================================
+// CUSTOM BOOTSTRAP VARIABLE OVERRIDES
+// =============================================================================
+
+// Color System (Notion-inspired palette)
+$primary: #2563eb; // Notion blue
+$secondary: #6b7280; // Neutral gray
+$success: #10b981; // Emerald green
+$info: #06b6d4; // Cyan
+$warning: #f59e0b; // Amber
+$danger: #ef4444; // Red
+$light: #f8fafc; // Very light gray
+$dark: #1f2937; // Dark gray
+
+// Extended color palette for task status
+$status-created: #8b5cf6; // Purple for "Created"
+$status-in-progress: #3b82f6; // Blue for "In Progress"
+$status-blocked: #ef4444; // Red for "Blocked"
+$status-testing: #f59e0b; // Orange for "Testing"
+$status-ready: #10b981; // Green for "Ready to Finish"
+$status-finished: #6b7280; // Gray for "Finished"
+
+// Gray scale (Notion-style)
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+
+// Typography
+$font-family-sans-serif: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+  Roboto, sans-serif;
+$font-size-base: 0.875rem; // 14px base (Notion style)
+$line-height-base: 1.5;
+
+$font-sizes: (
+  1: 0.75rem,
+  // 12px
+  2: 0.8125rem,
+  // 13px
+  3: 0.875rem,
+  // 14px (base)
+  4: 1rem,
+  // 16px
+  5: 1.125rem,
+  // 18px
+  6: 1.25rem,
+  // 20px
+  7: 1.5rem,
+  // 24px
+  8: 1.875rem,
+  // 30px
+  9: 2.25rem,
+  // 36px
+);
+
+// Spacing (Notion-inspired scale)
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: 0.25rem,
+  // 4px
+  2: 0.5rem,
+  // 8px
+  3: 0.75rem,
+  // 12px
+  4: 1rem,
+  // 16px
+  5: 1.5rem,
+  // 24px
+  6: 2rem,
+  // 32px
+  7: 2.5rem,
+  // 40px
+  8: 3rem,
+  // 48px
+  9: 4rem,
+  // 64px
+  10: 5rem,
+  // 80px
+);
+
+// Border radius (Notion style - subtle rounded corners)
+$border-radius: 0.375rem; // 6px
+$border-radius-sm: 0.25rem; // 4px
+$border-radius-lg: 0.5rem; // 8px
+$border-radius-xl: 0.75rem; // 12px
+$border-radius-2xl: 1rem; // 16px
+
+// Shadows (Notion-style subtle shadows)
+$box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$box-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+  0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$box-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// Card defaults
+$card-border-width: 1px;
+$card-border-color: $gray-200;
+$card-border-radius: $border-radius-lg;
+$card-box-shadow: $box-shadow-sm;
+$card-bg: #ffffff;
+
+// Button customization
+$btn-padding-y: 0.5rem;
+$btn-padding-x: 1rem;
+$btn-font-size: $font-size-base;
+$btn-border-radius: $border-radius;
+$btn-box-shadow: none;
+$btn-focus-box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+
+// Form controls
+$input-padding-y: 0.5rem;
+$input-padding-x: 0.75rem;
+$input-font-size: $font-size-base;
+$input-border-color: $gray-300;
+$input-border-radius: $border-radius;
+$input-focus-border-color: $primary;
+$input-focus-box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+
+// Table customization
+$table-cell-padding-y: 0.75rem;
+$table-cell-padding-x: 1rem;
+$table-striped-bg: $gray-50;
+$table-hover-bg: $gray-50;
+
+// Modal customization
+$modal-backdrop-bg: rgba($dark, 0.5);
+$modal-border-radius: $border-radius-xl;
+$modal-box-shadow: $box-shadow-xl;
+
+// Import Bootstrap styles
+@import "bootstrap/scss/bootstrap";
+
+// =============================================================================
+// CUSTOM UTILITY CLASSES (Notion-style)
+// =============================================================================
+
+// Status badge system
+.badge-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: $border-radius-sm;
+
+  &.status-created {
+    background-color: rgba($status-created, 0.1);
+    color: $status-created;
+    border: 1px solid rgba($status-created, 0.2);
+  }
+
+  &.status-in-progress {
+    background-color: rgba($status-in-progress, 0.1);
+    color: $status-in-progress;
+    border: 1px solid rgba($status-in-progress, 0.2);
+  }
+
+  &.status-blocked {
+    background-color: rgba($status-blocked, 0.1);
+    color: $status-blocked;
+    border: 1px solid rgba($status-blocked, 0.2);
+  }
+
+  &.status-testing {
+    background-color: rgba($status-testing, 0.1);
+    color: $status-testing;
+    border: 1px solid rgba($status-testing, 0.2);
+  }
+
+  &.status-ready {
+    background-color: rgba($status-ready, 0.1);
+    color: $status-ready;
+    border: 1px solid rgba($status-ready, 0.2);
+  }
+
+  &.status-finished {
+    background-color: rgba($status-finished, 0.1);
+    color: $status-finished;
+    border: 1px solid rgba($status-finished, 0.2);
+  }
+}
+
+// Notion-style cards
+.card-notion {
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow-sm;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: $box-shadow;
+    border-color: $gray-300;
+  }
+
+  .card-header {
+    background: transparent;
+    border-bottom: 1px solid $gray-200;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: $gray-700;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+// Kanban board styling
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+
+  .kanban-column {
+    background: $gray-50;
+    border-radius: $border-radius-lg;
+    padding: 1rem;
+    min-height: 500px;
+
+    .kanban-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid $gray-200;
+
+      h6 {
+        margin: 0;
+        font-weight: 600;
+        color: $gray-700;
+        font-size: 0.875rem;
+      }
+
+      .task-count {
+        background: $gray-200;
+        color: $gray-600;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: $border-radius-sm;
+        font-weight: 500;
+      }
+    }
+
+    .kanban-tasks {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  }
+}
+
+// Task card styling
+.task-card {
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: $box-shadow;
+    border-color: $gray-300;
+    transform: translateY(-1px);
+  }
+
+  .task-title {
+    font-weight: 500;
+    color: $gray-900;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .task-description {
+    color: $gray-600;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+  }
+
+  .task-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: $gray-500;
+
+    .task-labels {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+    }
+
+    .task-assignee {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: $gray-300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      font-weight: 600;
+      color: $gray-600;
+    }
+  }
+}
+
+// Priority indicators
+.priority-high {
+  border-left: 3px solid $danger;
+}
+.priority-medium {
+  border-left: 3px solid $warning;
+}
+.priority-low {
+  border-left: 3px solid $success;
+}
+
+// Notion-style buttons
+.btn-notion {
+  background: white;
+  border: 1px solid $gray-300;
+  color: $gray-700;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: $border-radius;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background: $gray-50;
+    border-color: $gray-400;
+    color: $gray-800;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+  }
+}
+
+// Sidebar styling (Notion-inspired)
+.sidebar-notion {
+  background: $gray-50;
+  border-right: 1px solid $gray-200;
+
+  .nav-link {
+    color: $gray-700;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: $border-radius;
+    margin-bottom: 0.25rem;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      background: white;
+      color: $gray-900;
+    }
+
+    &.active {
+      background: white;
+      color: $primary;
+      box-shadow: $box-shadow-sm;
+    }
+
+    i {
+      width: 1.25rem;
+      margin-right: 0.75rem;
+    }
+  }
+}
+
+// Form styling (Notion-inspired)
+.form-notion {
+  .form-label {
+    font-weight: 500;
+    color: $gray-700;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .form-control {
+    border: 1px solid $gray-300;
+    border-radius: $border-radius;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease-in-out;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+    }
+  }
+
+  .form-select {
+    border: 1px solid $gray-300;
+    border-radius: $border-radius;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+    }
+  }
+}
+
+// Utility classes for spacing (extend Bootstrap)
+.gap-2\.5 {
+  gap: 0.625rem;
+}
+.gap-3\.5 {
+  gap: 0.875rem;
+}
+.p-2\.5 {
+  padding: 0.625rem;
+}
+.m-2\.5 {
+  margin: 0.625rem;
+}
+.px-2\.5 {
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+}
+.py-2\.5 {
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+}
+
+// Text utilities
+.text-2xs {
+  font-size: 0.625rem;
+}
+.text-xs {
+  font-size: 0.75rem;
+}
+.text-sm {
+  font-size: 0.875rem;
+}
+.text-base {
+  font-size: 1rem;
+}
+.text-lg {
+  font-size: 1.125rem;
+}
+.text-xl {
+  font-size: 1.25rem;
+}
+
+// Animation utilities
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+// Loading states
+.loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    $gray-200 25%,
+    $gray-100 50%,
+    $gray-200 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: $border-radius;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Responsive utilities
+@media (max-width: 768px) {
+  .kanban-board {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .card-notion .card-body {
+    padding: 1rem;
+  }
+
+  .task-card {
+    padding: 0.75rem;
+  }
+}
