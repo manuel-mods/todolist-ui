@@ -21,6 +21,9 @@ export interface Task {
   sprint?: string;
   reporter?: string;
   watchers?: string[];
+  
+  // Checklist
+  checklistItems?: ChecklistItem[];
 }
 
 export enum TaskStatus {
@@ -161,4 +164,34 @@ export interface TaskFieldValue {
   fieldId: number;
   taskId: number;
   value: any;
+}
+
+// Checklist models
+export interface ChecklistItem {
+  id: string;
+  title: string;
+  isCompleted: boolean;
+  order: number;
+  taskId: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ChecklistProgress {
+  totalItems: number;
+  completedItems: number;
+  progress: number;
+}
+
+export interface CreateChecklistItemRequest {
+  title: string;
+}
+
+export interface UpdateChecklistItemRequest {
+  title?: string;
+  isCompleted?: boolean;
+}
+
+export interface ReorderChecklistRequest {
+  itemOrders: { id: string; order: number }[];
 }

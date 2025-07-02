@@ -58,6 +58,23 @@
         </div>
       </div>
 
+      <!-- Checklist -->
+      <div class="section" *ngIf="task()!.checklistItems && task()!.checklistItems.length > 0 || showChecklist()">
+        <div class="section-header">
+          <h3>Checklist</h3>
+          <button class="toggle-btn" (click)="toggleChecklist()">
+            <i class="fas" [class.fa-chevron-down]="!showChecklist()" [class.fa-chevron-up]="showChecklist()"></i>
+          </button>
+        </div>
+        
+        <div *ngIf="showChecklist()">
+          <app-checklist 
+            [taskId]="task()!.id"
+            [checklistItems]="task()!.checklistItems || []">
+          </app-checklist>
+        </div>
+      </div>
+
       <!-- Custom Fields (Mockup) -->
       <div class="section">
         <div class="section-header">
@@ -208,6 +225,47 @@
       <div class="sidebar-section">
         <h4>Details</h4>
         <div class="quick-fields">
+          <div class="quick-field" *ngIf="task()!.priority">
+            <label>Priority</label>
+            <span class="priority-badge" [class]="'priority-' + task()!.priority">
+              <span *ngIf="task()!.priority === 'high'">🔴</span>
+              <span *ngIf="task()!.priority === 'medium'">🟡</span>
+              <span *ngIf="task()!.priority === 'low'">🟢</span>
+              {{ task()!.priority | titlecase }}
+            </span>
+          </div>
+          <div class="quick-field" *ngIf="task()!.assignedTo">
+            <label>Assigned To</label>
+            <span>{{ task()!.assignedTo }}</span>
+          </div>
+          <div class="quick-field" *ngIf="task()!.dueDate">
+            <label>Due Date</label>
+            <span>{{ task()!.dueDate | date:'MMM d, yyyy' }}</span>
+          </div>
+          <div class="quick-field" *ngIf="task()!.estimatedHours">
+            <label>Estimated Hours</label>
+            <span>{{ task()!.estimatedHours }}h</span>
+          </div>
+          <div class="quick-field" *ngIf="task()!.actualHours">
+            <label>Actual Hours</label>
+            <span>{{ task()!.actualHours }}h</span>
+          </div>
+          <div class="quick-field" *ngIf="task()!.storyPoints">
+            <label>Story Points</label>
+            <span class="story-points-badge">{{ task()!.storyPoints }}</span>
+          </div>
+          <div class="quick-field" *ngIf="task()!.epic">
+            <label>Epic</label>
+            <span>{{ task()!.epic }}</span>
+          </div>
+          <div class="quick-field" *ngIf="task()!.sprint">
+            <label>Sprint</label>
+            <span>{{ task()!.sprint }}</span>
+          </div>
+          <div class="quick-field" *ngIf="task()!.reporter">
+            <label>Reporter</label>
+            <span>{{ task()!.reporter }}</span>
+          </div>
           <div class="quick-field">
             <label>Created</label>
             <span>{{ task()!.createdAt | date:'MMM d, yyyy' }}</span>
@@ -219,6 +277,26 @@
           <div class="quick-field">
             <label>Project</label>
             <span>{{ task()!.projectId }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Labels -->
+      <div class="sidebar-section" *ngIf="task()!.labels && task()!.labels.length > 0">
+        <h4>Labels</h4>
+        <div class="labels-container">
+          <span *ngFor="let label of task()!.labels" class="label-badge">
+            {{ label }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Watchers -->
+      <div class="sidebar-section" *ngIf="task()!.watchers && task()!.watchers.length > 0">
+        <h4>Watchers</h4>
+        <div class="watchers-container">
+          <div *ngFor="let watcher of task()!.watchers" class="watcher-item">
+            {{ watcher }}
           </div>
         </div>
       </div>

@@ -144,6 +144,18 @@ export class KanbanBoardComponent {
     return project?.name || 'Unknown Project';
   }
 
+  // Checklist progress methods
+  getCompletedChecklistItems(task: Task): number {
+    if (!task.checklistItems) return 0;
+    return task.checklistItems.filter(item => item.isCompleted).length;
+  }
+
+  getChecklistProgress(task: Task): number {
+    if (!task.checklistItems || task.checklistItems.length === 0) return 0;
+    const completed = this.getCompletedChecklistItems(task);
+    return Math.round((completed / task.checklistItems.length) * 100);
+  }
+
   getStatistics(): TaskStatistics {
     if (this.statistics) {
       return this.statistics;

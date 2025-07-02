@@ -106,12 +106,34 @@
           <div class="task-description" *ngIf="task.description">
             {{ task.description }}
           </div>
+          <div class="task-checklist" *ngIf="task.checklistItems && task.checklistItems.length > 0">
+            <div class="checklist-progress">
+              <i class="fas fa-list-check"></i>
+              <span class="progress-text">
+                {{ getCompletedChecklistItems(task) }}/{{ task.checklistItems.length }}
+              </span>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getChecklistProgress(task)"></div>
+              </div>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
-            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
-              {{ getAssigneeInitials(task.assignedTo) }}
+            <div class="task-bottom">
+              <div class="task-info">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                  {{ task.storyPoints }}
+                </span>
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                  <i class="fas fa-calendar"></i>
+                  {{ task.dueDate | date:'MMM d' }}
+                </span>
+              </div>
+              <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+                {{ getAssigneeInitials(task.assignedTo) }}
+              </div>
             </div>
           </div>
         </div>
@@ -153,12 +175,34 @@
           <div class="task-description" *ngIf="task.description">
             {{ task.description }}
           </div>
+          <div class="task-checklist" *ngIf="task.checklistItems && task.checklistItems.length > 0">
+            <div class="checklist-progress">
+              <i class="fas fa-list-check"></i>
+              <span class="progress-text">
+                {{ getCompletedChecklistItems(task) }}/{{ task.checklistItems.length }}
+              </span>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getChecklistProgress(task)"></div>
+              </div>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
-            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
-              {{ getAssigneeInitials(task.assignedTo) }}
+            <div class="task-bottom">
+              <div class="task-info">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                  {{ task.storyPoints }}
+                </span>
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                  <i class="fas fa-calendar"></i>
+                  {{ task.dueDate | date:'MMM d' }}
+                </span>
+              </div>
+              <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+                {{ getAssigneeInitials(task.assignedTo) }}
+              </div>
             </div>
           </div>
         </div>
@@ -200,12 +244,34 @@
           <div class="task-description" *ngIf="task.description">
             {{ task.description }}
           </div>
+          <div class="task-checklist" *ngIf="task.checklistItems && task.checklistItems.length > 0">
+            <div class="checklist-progress">
+              <i class="fas fa-list-check"></i>
+              <span class="progress-text">
+                {{ getCompletedChecklistItems(task) }}/{{ task.checklistItems.length }}
+              </span>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getChecklistProgress(task)"></div>
+              </div>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
-            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
-              {{ getAssigneeInitials(task.assignedTo) }}
+            <div class="task-bottom">
+              <div class="task-info">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                  {{ task.storyPoints }}
+                </span>
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                  <i class="fas fa-calendar"></i>
+                  {{ task.dueDate | date:'MMM d' }}
+                </span>
+              </div>
+              <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+                {{ getAssigneeInitials(task.assignedTo) }}
+              </div>
             </div>
           </div>
         </div>
@@ -247,12 +313,34 @@
           <div class="task-description" *ngIf="task.description">
             {{ task.description }}
           </div>
+          <div class="task-checklist" *ngIf="task.checklistItems && task.checklistItems.length > 0">
+            <div class="checklist-progress">
+              <i class="fas fa-list-check"></i>
+              <span class="progress-text">
+                {{ getCompletedChecklistItems(task) }}/{{ task.checklistItems.length }}
+              </span>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getChecklistProgress(task)"></div>
+              </div>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
-            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
-              {{ getAssigneeInitials(task.assignedTo) }}
+            <div class="task-bottom">
+              <div class="task-info">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                  {{ task.storyPoints }}
+                </span>
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                  <i class="fas fa-calendar"></i>
+                  {{ task.dueDate | date:'MMM d' }}
+                </span>
+              </div>
+              <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+                {{ getAssigneeInitials(task.assignedTo) }}
+              </div>
             </div>
           </div>
         </div>
@@ -294,12 +382,34 @@
           <div class="task-description" *ngIf="task.description">
             {{ task.description }}
           </div>
+          <div class="task-checklist" *ngIf="task.checklistItems && task.checklistItems.length > 0">
+            <div class="checklist-progress">
+              <i class="fas fa-list-check"></i>
+              <span class="progress-text">
+                {{ getCompletedChecklistItems(task) }}/{{ task.checklistItems.length }}
+              </span>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getChecklistProgress(task)"></div>
+              </div>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
-            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
-              {{ getAssigneeInitials(task.assignedTo) }}
+            <div class="task-bottom">
+              <div class="task-info">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                  {{ task.storyPoints }}
+                </span>
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                  <i class="fas fa-calendar"></i>
+                  {{ task.dueDate | date:'MMM d' }}
+                </span>
+              </div>
+              <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+                {{ getAssigneeInitials(task.assignedTo) }}
+              </div>
             </div>
           </div>
         </div>
@@ -341,12 +451,34 @@
           <div class="task-description" *ngIf="task.description">
             {{ task.description }}
           </div>
+          <div class="task-checklist" *ngIf="task.checklistItems && task.checklistItems.length > 0">
+            <div class="checklist-progress">
+              <i class="fas fa-list-check"></i>
+              <span class="progress-text">
+                {{ getCompletedChecklistItems(task) }}/{{ task.checklistItems.length }}
+              </span>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getChecklistProgress(task)"></div>
+              </div>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
-            <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
-              {{ getAssigneeInitials(task.assignedTo) }}
+            <div class="task-bottom">
+              <div class="task-info">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                  {{ task.storyPoints }}
+                </span>
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                  <i class="fas fa-calendar"></i>
+                  {{ task.dueDate | date:'MMM d' }}
+                </span>
+              </div>
+              <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
+                {{ getAssigneeInitials(task.assignedTo) }}
+              </div>
             </div>
           </div>
         </div>

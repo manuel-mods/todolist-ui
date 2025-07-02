@@ -5,11 +5,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { TaskService } from '../../../core/services/task.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Task, TaskComment, TaskStatus, CustomField, TaskFieldValue } from '../../../core/models';
+import { ChecklistComponent } from '../../../shared/components/checklist/checklist.component';
 
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ChecklistComponent],
   templateUrl: './task-detail.component.html',
   styleUrls: ['./task-detail.component.scss']
 })
@@ -34,6 +35,7 @@ export class TaskDetailComponent implements OnInit {
   // UI State
   isEditing = signal(false);
   showCustomFields = signal(false);
+  showChecklist = signal(true);
   
   // Mock data for demonstration
   mockComments: TaskComment[] = [
@@ -167,6 +169,10 @@ export class TaskDetailComponent implements OnInit {
 
   toggleCustomFields(): void {
     this.showCustomFields.update(v => !v);
+  }
+
+  toggleChecklist(): void {
+    this.showChecklist.update(v => !v);
   }
 
   saveTask(): void {

@@ -38,6 +38,48 @@ import { CreateProjectRequest } from '../../../core/models';
             Project name is required
           </div>
         </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            class="form-control"
+            rows="3"
+            placeholder="Enter project description (optional)"
+          ></textarea>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="color" class="form-label">Project Color</label>
+              <input
+                id="color"
+                type="color"
+                formControlName="color"
+                class="form-control form-control-color"
+                title="Choose project color"
+              >
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="icon" class="form-label">Icon</label>
+              <select id="icon" formControlName="icon" class="form-select">
+                <option value="">Select an icon</option>
+                <option value="fas fa-folder">📁 Folder</option>
+                <option value="fas fa-project-diagram">📊 Project</option>
+                <option value="fas fa-code">💻 Code</option>
+                <option value="fas fa-bug">🐛 Bug</option>
+                <option value="fas fa-rocket">🚀 Rocket</option>
+                <option value="fas fa-lightbulb">💡 Idea</option>
+                <option value="fas fa-tasks">✅ Tasks</option>
+                <option value="fas fa-users">👥 Team</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="modal-footer">
@@ -70,7 +112,10 @@ export class CreateProjectModalContentComponent {
   loading = signal(false);
 
   projectForm: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(1)]]
+    name: ['', [Validators.required, Validators.minLength(1)]],
+    description: [''],
+    color: ['#007bff'],
+    icon: ['']
   });
 
   async onSubmit(): Promise<void> {
@@ -81,8 +126,12 @@ export class CreateProjectModalContentComponent {
 
     this.loading.set(true);
     try {
+      const formValue = this.projectForm.value;
       const projectData: CreateProjectRequest = {
-        name: this.projectForm.get('name')?.value.trim(),
+        name: formValue.name.trim(),
+        description: formValue.description?.trim() || undefined,
+        color: formValue.color || undefined,
+        icon: formValue.icon || undefined,
         userId: currentUser.id
       };
 

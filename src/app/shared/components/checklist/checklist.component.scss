@@ -1,0 +1,382 @@
+.checklist-container {
+  .checklist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .progress-info {
+      font-size: 14px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+  }
+
+  .checklist-items {
+    .checklist-item {
+      margin-bottom: 8px;
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: white;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      &.completed {
+        background: #f9fafb;
+        border-color: #d1d5db;
+      }
+
+      .item-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+
+        .checkbox-wrapper {
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          flex-shrink: 0;
+          margin-top: 2px;
+
+          input[type="checkbox"] {
+            display: none;
+          }
+
+          .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.2s ease;
+
+            &::after {
+              content: '';
+              position: absolute;
+              left: 6px;
+              top: 2px;
+              width: 6px;
+              height: 10px;
+              border: solid white;
+              border-width: 0 2px 2px 0;
+              transform: rotate(45deg);
+              opacity: 0;
+              transition: opacity 0.2s ease;
+            }
+          }
+
+          input:checked + .checkmark {
+            background: #10b981;
+            border-color: #10b981;
+
+            &::after {
+              opacity: 1;
+            }
+          }
+
+          input:disabled + .checkmark {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+
+        .item-text {
+          flex: 1;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+
+          span {
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.5;
+            word-break: break-word;
+
+            &.strikethrough {
+              text-decoration: line-through;
+              color: #9ca3af;
+            }
+          }
+
+          .item-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+
+            button {
+              background: none;
+              border: none;
+              padding: 4px 6px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 12px;
+              transition: all 0.2s ease;
+
+              &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+              }
+
+              &.edit-btn {
+                color: #6b7280;
+
+                &:hover:not(:disabled) {
+                  background: #f3f4f6;
+                  color: #374151;
+                }
+              }
+
+              &.delete-btn {
+                color: #dc2626;
+
+                &:hover:not(:disabled) {
+                  background: #fef2f2;
+                }
+              }
+            }
+          }
+
+          &:hover .item-actions {
+            opacity: 1;
+          }
+        }
+
+        .item-edit {
+          flex: 1;
+          display: flex;
+          gap: 8px;
+          align-items: center;
+
+          .edit-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            
+            &:focus {
+              outline: none;
+              border-color: #3b82f6;
+              box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+          }
+
+          .edit-actions {
+            display: flex;
+            gap: 4px;
+
+            button {
+              background: none;
+              border: 1px solid #d1d5db;
+              padding: 6px 8px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 12px;
+              transition: all 0.2s ease;
+
+              &.save-btn {
+                color: #10b981;
+                border-color: #10b981;
+
+                &:hover {
+                  background: #f0fdf4;
+                }
+              }
+
+              &.cancel-btn {
+                color: #6b7280;
+
+                &:hover {
+                  background: #f9fafb;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .add-item {
+    margin-top: 16px;
+
+    .add-form {
+      .add-btn {
+        width: 100%;
+        background: none;
+        border: 1px dashed #d1d5db;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #6b7280;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        &:hover {
+          border-color: #9ca3af;
+          color: #374151;
+          background: #f9fafb;
+        }
+
+        i {
+          font-size: 12px;
+        }
+      }
+    }
+
+    .add-form-expanded {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: white;
+
+      .add-input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+
+        &:focus {
+          outline: none;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        &::placeholder {
+          color: #9ca3af;
+        }
+      }
+
+      .add-actions {
+        display: flex;
+        gap: 4px;
+
+        button {
+          background: none;
+          border: 1px solid #d1d5db;
+          padding: 6px 8px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 12px;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          &.save-btn {
+            color: #10b981;
+            border-color: #10b981;
+
+            &:hover:not(:disabled) {
+              background: #f0fdf4;
+            }
+
+            .spinner {
+              width: 12px;
+              height: 12px;
+              border: 1px solid #10b981;
+              border-top: 1px solid transparent;
+              border-radius: 50%;
+              animation: spin 1s linear infinite;
+            }
+          }
+
+          &.cancel-btn {
+            color: #6b7280;
+
+            &:hover {
+              background: #f9fafb;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: #9ca3af;
+
+    i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: #d1d5db;
+    }
+
+    p {
+      font-size: 16px;
+      font-weight: 500;
+      margin: 0 0 4px 0;
+      color: #6b7280;
+    }
+
+    small {
+      font-size: 14px;
+      color: #9ca3af;
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Mobile responsive
+@media (max-width: 768px) {
+  .checklist-container {
+    .checklist-item {
+      .item-content {
+        .item-text {
+          .item-actions {
+            opacity: 1; // Always show on mobile
+          }
+        }
+      }
+    }
+  }
+}
