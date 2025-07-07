@@ -59,7 +59,7 @@
       </div>
 
       <!-- Checklist -->
-      <div class="section" *ngIf="task()!.checklistItems && task()!.checklistItems.length > 0 || showChecklist()">
+      <div class="section" *ngIf="task()?.checklistItems?.length || showChecklist()">
         <div class="section-header">
           <h3>Checklist</h3>
           <button class="toggle-btn" (click)="toggleChecklist()">
@@ -282,7 +282,7 @@
       </div>
 
       <!-- Labels -->
-      <div class="sidebar-section" *ngIf="task()!.labels && task()!.labels.length > 0">
+      <div class="sidebar-section" *ngIf="task()?.labels?.length">
         <h4>Labels</h4>
         <div class="labels-container">
           <span *ngFor="let label of task()!.labels" class="label-badge">
@@ -292,7 +292,7 @@
       </div>
 
       <!-- Watchers -->
-      <div class="sidebar-section" *ngIf="task()!.watchers && task()!.watchers.length > 0">
+      <div class="sidebar-section" *ngIf="task()?.watchers?.length">
         <h4>Watchers</h4>
         <div class="watchers-container">
           <div *ngFor="let watcher of task()!.watchers" class="watcher-item">
