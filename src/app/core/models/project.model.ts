@@ -6,9 +6,9 @@ export interface Project {
   createdAt?: Date;
   updatedAt?: Date;
   tasks?: Task[];
-  sharedUsers?: User[];
+  sharedUsers?: any[];
   isShared?: boolean; // Para distinguir proyectos compartidos de propios
-  
+
   // NEW: Additional project metadata
   color?: string;
   icon?: string;
@@ -30,7 +30,7 @@ export interface CreateProjectRequest {
 }
 
 export interface ShareProjectRequest {
-  email: string;
+  userId: string;
 }
 
 import { Task } from './task.model';

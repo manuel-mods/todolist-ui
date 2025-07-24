@@ -7,6 +7,7 @@ export interface Task {
   createdAt: Date;
   updatedAt: Date;
   history?: TaskHistory[];
+  order?: number; // Para ordenamiento dentro de columnas
   
   // NEW JIRA-like fields
   labels?: string[];
@@ -78,10 +79,18 @@ export interface UpdateTaskRequest {
   storyPoints?: number;
   epic?: string;
   sprint?: string;
+  parentTaskId?: number;
 }
 
 export interface UpdateTaskStatusRequest {
   newStatus: string;
+  userId: string;
+}
+
+export interface ReorderTasksRequest {
+  taskId: number;
+  newStatus: TaskStatus;
+  newOrder: number;
   userId: string;
 }
 
@@ -98,6 +107,7 @@ export interface TaskComment {
   changeType: string;
   oldValue?: string;
   newValue?: string;
+  comment?: string;
   createdAt: Date;
   user?: {
     id: string;

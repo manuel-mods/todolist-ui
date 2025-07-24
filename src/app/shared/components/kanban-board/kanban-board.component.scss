@@ -285,20 +285,66 @@
       }
     }
   }
+
+  .task-subtasks {
+    margin-bottom: 0.75rem;
+    
+    .subtask-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      color: #6b7280;
+      
+      i {
+        font-size: 0.65rem;
+        color: #9333ea;
+      }
+      
+      .subtask-count {
+        font-weight: 500;
+      }
+    }
+  }
   
   .task-meta {
     .task-labels {
       display: flex;
       gap: 0.25rem;
       margin-bottom: 0.5rem;
+      flex-wrap: wrap;
       
       .label {
-        background: #f5f5f5;
-        color: #666;
         font-size: 0.7rem;
         padding: 0.125rem 0.375rem;
-        border-radius: 3px;
+        border-radius: 12px;
         font-weight: 500;
+        
+        // Color variations for visual distinction
+        &:nth-child(5n+1) {
+          background: #3498db;
+          color: white;
+        }
+        
+        &:nth-child(5n+2) {
+          background: #e74c3c;
+          color: white;
+        }
+        
+        &:nth-child(5n+3) {
+          background: #2ecc71;
+          color: white;
+        }
+        
+        &:nth-child(5n+4) {
+          background: #f39c12;
+          color: white;
+        }
+        
+        &:nth-child(5n+5) {
+          background: #9b59b6;
+          color: white;
+        }
       }
     }
     
@@ -316,12 +362,12 @@
         .story-points {
           background: #2196f3;
           color: white;
-          font-size: 0.65rem;
+          font-size: 0.6rem;
           font-weight: 600;
-          padding: 0.125rem 0.375rem;
+          padding: 0.1rem 0.25rem;
           border-radius: 50%;
-          min-width: 18px;
-          min-height: 18px;
+          min-width: 16px;
+          min-height: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -377,18 +423,39 @@
 // Enhanced CDK Drag and Drop styles
 .cdk-drag-preview {
   box-sizing: border-box;
-  border-radius: 6px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  transform: rotate(3deg);
+  border-radius: 8px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  transform: rotate(2deg) scale(1.05);
   background: white;
-  border: 1px solid #d0d0d0;
+  border: 2px solid #3b82f6;
+  transition: all 0.2s ease;
+  opacity: 0.95;
+  z-index: 1000;
   
   .task-title {
     color: #1a1a1a !important;
+    font-weight: 600;
   }
   
   .task-description {
     color: #666 !important;
+  }
+
+  .task-priority {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .task-meta {
+    .task-labels .label {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .task-assignee {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #3b82f6;
+    }
   }
 }
 
@@ -419,12 +486,27 @@
 
 .cdk-drop-list {
   min-height: 100px;
-  transition: background-color 250ms ease;
+  transition: all 250ms ease;
   border-radius: 4px;
+  position: relative;
   
   &.cdk-drop-list-receiving {
-    background-color: rgba(99, 102, 241, 0.05);
-    border: 2px dashed rgba(99, 102, 241, 0.3);
+    background-color: rgba(59, 130, 246, 0.05);
+    border: 2px dashed rgba(59, 130, 246, 0.3);
+    transform: scale(1.02);
+  }
+  
+  &.cdk-drop-list-dragging {
+    .task-card:not(.cdk-drag-placeholder) {
+      transform: scale(0.98);
+      opacity: 0.8;
+    }
+  }
+  
+  &.drop-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 2px solid rgba(16, 185, 129, 0.4);
+    animation: dropSuccess 1s ease-out;
   }
 }
 
@@ -435,14 +517,33 @@
 // Improved task card drag state
 .cdk-drag {
   cursor: grab;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
   
   &:active {
     cursor: grabbing;
   }
   
+  &:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  
   &.cdk-drag-disabled {
     cursor: default;
     opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  &.cdk-drag-dragging {
+    cursor: grabbing;
+    transform: rotate(3deg);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -461,6 +562,35 @@
   p {
     font-size: 0.875rem;
     margin: 0;
+  }
+}
+
+// Animations
+@keyframes dropSuccess {
+  0% {
+    background-color: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.6);
+    transform: scale(1.05);
+  }
+  50% {
+    background-color: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.5);
+  }
+  100% {
+    background-color: transparent;
+    border-color: transparent;
+    transform: scale(1);
+  }
+}
+
+@keyframes taskHover {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 }
 

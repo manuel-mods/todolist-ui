@@ -2,7 +2,7 @@ import { Injectable, inject, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, map, tap, catchError, throwError, from, switchMap } from 'rxjs';
-import { Auth, signInWithCustomToken, signOut, User as FirebaseUser, onAuthStateChanged, getIdToken } from '@angular/fire/auth';
+import { Auth, signInWithCustomToken, signOut, User as FirebaseUser, onAuthStateChanged, getIdToken, sendPasswordResetEmail } from '@angular/fire/auth';
 import { User } from '../models';
 import { environment } from '../../../environments/environment';
 
@@ -143,6 +143,34 @@ export class AuthService {
   }
   
   resetPassword(email: string): Observable<void> {
+    // Using Firebase reset password instead of backend API
+    return from(sendPasswordResetEmail(this.auth, email)).pipe(
+      map(() => void 0),
+      catchError(error => {
+        console.error('Firebase password reset error:', error);
+        let message = 'Password reset failed';
+        
+        // Handle specific Firebase error codes
+        switch (error.code) {
+          case 'auth/user-not-found':
+            message = 'No user found with this email address';
+            break;
+          case 'auth/invalid-email':
+            message = 'Invalid email address';
+            break;
+          case 'auth/too-many-requests':
+            message = 'Too many requests. Please try again later';
+            break;
+          default:
+            message = error.message || 'Password reset failed';
+        }
+        
+        return throwError(() => new Error(message));
+      })
+    );
+    
+    // Commented out: Backend API implementation
+    /*
     const request: ResetPasswordRequest = { email };
     
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/reset-password`, request).pipe(
@@ -158,6 +186,7 @@ export class AuthService {
         return throwError(() => new Error(message));
       })
     );
+    */
   }
   
   logout(): void {

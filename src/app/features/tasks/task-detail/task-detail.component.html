@@ -27,6 +27,9 @@
       <button class="btn btn-secondary" (click)="toggleEdit()" *ngIf="!isEditing()">
         <i class="fas fa-edit"></i> Edit
       </button>
+      <button class="btn btn-danger me-2" (click)="deleteTask()" *ngIf="!isEditing()">
+        <i class="fas fa-trash"></i> Delete
+      </button>
       <button class="btn btn-success" (click)="saveTask()" *ngIf="isEditing()" [disabled]="editForm.invalid">
         <i class="fas fa-save"></i> Save
       </button>
@@ -140,6 +143,24 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Attachments -->
+      <div class="section">
+        <div class="section-header">
+          <h3>Attachments</h3>
+          <button class="toggle-btn" (click)="toggleAttachments()">
+            <i class="fas" [class.fa-chevron-down]="!showAttachments()" [class.fa-chevron-up]="showAttachments()"></i>
+          </button>
+        </div>
+        
+        <div *ngIf="showAttachments()">
+          <app-task-attachments 
+            [taskId]="task()!.id"
+            [readonly]="false"
+            (attachmentsChanged)="onAttachmentsChanged($event)">
+          </app-task-attachments>
         </div>
       </div>
 

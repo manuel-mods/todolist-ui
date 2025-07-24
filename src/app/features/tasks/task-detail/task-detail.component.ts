@@ -4,13 +4,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TaskService } from '../../../core/services/task.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Task, TaskComment, TaskStatus, CustomField, TaskFieldValue } from '../../../core/models';
+import { ConfirmService } from '../../../shared/services/confirm.service';
+import { Task, TaskComment, TaskStatus, CustomField, TaskFieldValue, TaskAttachment } from '../../../core/models';
 import { ChecklistComponent } from '../../../shared/components/checklist/checklist.component';
+import { TaskAttachmentsComponent } from '../../../shared/components/task-attachments/task-attachments.component';
 
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ChecklistComponent],
+  imports: [CommonModule, ReactiveFormsModule, ChecklistComponent, TaskAttachmentsComponent],
   templateUrl: './task-detail.component.html',
   styleUrls: ['./task-detail.component.scss']
 })
@@ -19,6 +21,7 @@ export class TaskDetailComponent implements OnInit {
   private router = inject(Router);
   private taskService = inject(TaskService);
   private authService = inject(AuthService);
+  private confirmService = inject(ConfirmService);
   private fb = inject(FormBuilder);
 
   task = signal<Task | null>(null);
@@ -36,6 +39,7 @@ export class TaskDetailComponent implements OnInit {
   isEditing = signal(false);
   showCustomFields = signal(false);
   showChecklist = signal(true);
+  showAttachments = signal(true);
   
   // Mock data for demonstration
   mockComments: TaskComment[] = [
@@ -173,6 +177,15 @@ export class TaskDetailComponent implements OnInit {
 
   toggleChecklist(): void {
     this.showChecklist.update(v => !v);
+  }
+
+  toggleAttachments(): void {
+    this.showAttachments.update(v => !v);
+  }
+
+  onAttachmentsChanged(attachments: TaskAttachment[]): void {
+    // Update task with new attachments if needed
+    console.log('Attachments changed:', attachments);
   }
 
   saveTask(): void {
@@ -313,5 +326,36 @@ export class TaskDetailComponent implements OnInit {
 
   trackComment(index: number, comment: TaskComment): number {
     return comment.id;
+  }
+
+  deleteTask(): void {
+    const currentTask = this.task();
+    
+    if (!currentTask) {
+      this.error.set('No task available to delete');
+      return;
+    }
+
+    this.confirmService.confirmWithAction(
+      {
+        title: 'Delete Task',
+        message: `Are you sure you want to delete "${currentTask.title}"? This action cannot be undone.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        variant: 'danger'
+      },
+      () => this.taskService.deleteTask(currentTask.id)
+    ).subscribe({
+      next: (result) => {
+        if (result !== null) {
+          // Navigate back to tasks list after successful deletion
+          this.router.navigate(['/tasks']);
+        }
+      },
+      error: (error) => {
+        console.error('Error deleting task:', error);
+        this.error.set('Failed to delete task. Please try again.');
+      }
+    });
   }
 }

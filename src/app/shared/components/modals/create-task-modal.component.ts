@@ -1,174 +1,419 @@
-import { Component, inject, signal, Input } from '@angular/core';
+import { Component, inject, signal, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TaskService } from '../../../core/services/task.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TaskStatus, Project, User } from '../../../core/models';
+import { UserSelectorComponent } from '../user-selector/user-selector.component';
+import { StoryPointsSelectorComponent } from '../story-points-selector/story-points-selector.component';
 
 @Component({
   selector: 'app-create-task-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, UserSelectorComponent, StoryPointsSelectorComponent],
   template: `
-    <div class="modal-header border-0">
-      <h4 class="modal-title fw-bold">Create New Task</h4>
-      <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss()"></button>
-    </div>
-
-    <div class="modal-body">
-      <!-- Error State -->
-      <div class="alert alert-danger" *ngIf="error()" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>{{ error() }}
-      </div>
-
-      <!-- Task Form -->
-      <form [formGroup]="taskForm">
-        <!-- Title -->
-        <div class="mb-3">
-          <label for="title" class="form-label fw-medium">Title *</label>
-          <input type="text" id="title" class="form-control" formControlName="title" 
-                 placeholder="Enter task title" autofocus>
-          <div class="invalid-feedback" *ngIf="taskForm.get('title')?.invalid && taskForm.get('title')?.touched">
-            Title is required
-          </div>
-        </div>
-
-        <!-- Description -->
-        <div class="mb-3">
-          <label for="description" class="form-label fw-medium">Description</label>
-          <textarea id="description" class="form-control" rows="4" formControlName="description" 
-                    placeholder="Enter task description"></textarea>
-        </div>
-
-        <div class="row">
-          <!-- Project -->
-          <div class="col-md-6 mb-3">
-            <label for="project" class="form-label fw-medium">Project *</label>
-            <select id="project" class="form-select" formControlName="projectId">
-              <option value="">Select a project</option>
-              <option *ngFor="let project of projects" [value]="project.id">{{ project.name }}</option>
-            </select>
-            <div class="invalid-feedback" *ngIf="taskForm.get('projectId')?.invalid && taskForm.get('projectId')?.touched">
-              Project is required
+    <div class="fullscreen-modal-container">
+      <!-- Header -->
+      <div class="fullscreen-modal-header">
+        <div class="header-content">
+          <div class="header-left">
+            <div class="header-icon">
+              <i class="fas fa-plus-circle"></i>
+            </div>
+            <div class="header-text">
+              <h1 class="header-title">
+                {{ defaultProjectId ? 'Crear Nueva Tarea en ' + getProjectName(defaultProjectId) : 'Crear Nueva Tarea' }}
+              </h1>
+              <p class="header-subtitle">Complete los detalles para crear una nueva tarea</p>
             </div>
           </div>
-
-          <!-- Status -->
-          <div class="col-md-6 mb-3">
-            <label for="status" class="form-label fw-medium">Status</label>
-            <select id="status" class="form-select" formControlName="status">
-              <option value="CREATED">Created</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="BLOCKED">Blocked</option>
-              <option value="TESTING">Testing</option>
-              <option value="READY_TO_FINISH">Ready to Finish</option>
-              <option value="FINISHED">Finished</option>
-            </select>
+          <div class="header-actions">
+            <button type="button" class="btn btn-ghost" (click)="activeModal.dismiss()">
+              <i class="fas fa-times"></i>
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" (click)="createTask()" 
+                    [disabled]="taskForm.invalid || creating()">
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="creating()"></span>
+              <i class="fas fa-save me-1" *ngIf="!creating()"></i>
+              {{ creating() ? 'Creando...' : 'Crear Tarea' }}
+            </button>
           </div>
         </div>
+      </div>
 
-        <div class="row">
-          <!-- Priority -->
-          <div class="col-md-6 mb-3">
-            <label for="priority" class="form-label fw-medium">Priority</label>
-            <select id="priority" class="form-select" formControlName="priority">
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
+      <!-- Content -->
+      <div class="fullscreen-modal-content">
+        <div class="container-fluid">
+          <div class="row">
+            <!-- Main Form -->
+            <div class="col-lg-8">
+              <div class="form-section">
+                <!-- Error State -->
+                <div class="alert alert-danger" *ngIf="error()" role="alert">
+                  <i class="fas fa-exclamation-triangle me-2"></i>{{ error() }}
+                </div>
 
-          <!-- Assigned To -->
-          <div class="col-md-6 mb-3">
-            <label for="assignedTo" class="form-label fw-medium">Assigned To</label>
-            <select id="assignedTo" class="form-select" formControlName="assignedTo">
-              <option value="">Unassigned</option>
-              <option *ngFor="let user of users" [value]="user.id">{{ user.name }}</option>
-            </select>
+                <!-- Task Form -->
+                <form [formGroup]="taskForm">
+                  <!-- Title -->
+                  <div class="field-group">
+                    <label for="title" class="field-label">Título *</label>
+                    <input type="text" id="title" class="field-input" formControlName="title" 
+                           placeholder="Ingrese el título de la tarea" autofocus>
+                    <div class="field-error" *ngIf="taskForm.get('title')?.invalid && taskForm.get('title')?.touched">
+                      El título es requerido
+                    </div>
+                  </div>
+
+                  <!-- Description -->
+                  <div class="field-group">
+                    <label for="description" class="field-label">Descripción</label>
+                    <textarea id="description" class="field-input field-textarea" rows="6" formControlName="description" 
+                              placeholder="Ingrese la descripción de la tarea..."></textarea>
+                  </div>
+
+                  <!-- Project -->
+                  <div class="field-group" *ngIf="!defaultProjectId">
+                    <label for="project" class="field-label">Proyecto *</label>
+                    <select id="project" class="field-input" formControlName="projectId">
+                      <option value="">Seleccionar proyecto</option>
+                      <option *ngFor="let project of projects" [value]="project.id">{{ project.name }}</option>
+                    </select>
+                    <div class="field-error" *ngIf="taskForm.get('projectId')?.invalid && taskForm.get('projectId')?.touched">
+                      El proyecto es requerido
+                    </div>
+                  </div>
+                  
+                  <!-- Project Display (when pre-selected) -->
+                  <div class="field-group" *ngIf="defaultProjectId">
+                    <label class="field-label">Proyecto</label>
+                    <div class="field-display">
+                      <i class="fas fa-folder me-2 text-primary"></i>
+                      {{ getProjectName(defaultProjectId) }}
+                    </div>
+                  </div>
+
+                  <!-- Labels -->
+                  <div class="field-group">
+                    <label for="labels" class="field-label">Etiquetas</label>
+                    <input type="text" id="labels" class="field-input" formControlName="labelsString" 
+                           placeholder="Ingrese etiquetas separadas por comas">
+                    <small class="field-help">Separe múltiples etiquetas con comas</small>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+              <div class="sidebar-section">
+                <h3 class="sidebar-title">Configuración</h3>
+                
+                <form [formGroup]="taskForm">
+                  <!-- Status -->
+                  <div class="field-group">
+                    <label for="status" class="field-label">Estado</label>
+                    <select id="status" class="field-input" formControlName="status">
+                      <option value="CREATED">Creada</option>
+                      <option value="IN_PROGRESS">En Progreso</option>
+                      <option value="BLOCKED">Bloqueada</option>
+                      <option value="TESTING">En Pruebas</option>
+                      <option value="READY_TO_FINISH">Lista para Terminar</option>
+                      <option value="FINISHED">Terminada</option>
+                    </select>
+                  </div>
+
+                  <!-- Priority -->
+                  <div class="field-group">
+                    <label for="priority" class="field-label">Prioridad</label>
+                    <select id="priority" class="field-input" formControlName="priority">
+                      <option value="low">Baja</option>
+                      <option value="medium">Media</option>
+                      <option value="high">Alta</option>
+                    </select>
+                  </div>
+
+                  <!-- Assigned To -->
+                  <div class="field-group">
+                    <label class="field-label">Asignado a</label>
+                    <app-user-selector
+                      [users]="users"
+                      [selectedUserId]="taskForm.get('assignedTo')?.value"
+                      [multiSelect]="false"
+                      [allowUnassign]="true"
+                      [disabled]="creating()"
+                      placeholder="Seleccionar responsable..."
+                      (userSelected)="onUserAssigned($event)">
+                    </app-user-selector>
+                  </div>
+
+                  <!-- Due Date -->
+                  <div class="field-group">
+                    <label for="dueDate" class="field-label">Fecha límite</label>
+                    <input type="date" id="dueDate" class="field-input" formControlName="dueDate">
+                  </div>
+
+                  <!-- Estimated Hours -->
+                  <div class="field-group">
+                    <label for="estimatedHours" class="field-label">Horas estimadas</label>
+                    <input type="number" id="estimatedHours" class="field-input" formControlName="estimatedHours" 
+                           min="0" step="0.5" placeholder="0">
+                  </div>
+
+                  <!-- Story Points -->
+                  <div class="field-group">
+                    <app-story-points-selector
+                      [selectedPoints]="getStoryPointsValue()"
+                      [disabled]="creating()"
+                      [showGuide]="false"
+                      [showLabels]="true"
+                      (pointsSelected)="onStoryPointsSelected($event)">
+                    </app-story-points-selector>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="row">
-          <!-- Due Date -->
-          <div class="col-md-6 mb-3">
-            <label for="dueDate" class="form-label fw-medium">Due Date</label>
-            <input type="date" id="dueDate" class="form-control" formControlName="dueDate">
-          </div>
-
-          <!-- Estimated Hours -->
-          <div class="col-md-6 mb-3">
-            <label for="estimatedHours" class="form-label fw-medium">Estimated Hours</label>
-            <input type="number" id="estimatedHours" class="form-control" formControlName="estimatedHours" 
-                   min="0" step="0.5" placeholder="0">
-          </div>
-        </div>
-
-        <!-- Labels -->
-        <div class="mb-3">
-          <label for="labels" class="form-label fw-medium">Labels</label>
-          <input type="text" id="labels" class="form-control" formControlName="labelsString" 
-                 placeholder="Enter labels separated by commas">
-          <small class="form-text text-muted">Separate multiple labels with commas</small>
-        </div>
-
-        <!-- Story Points -->
-        <div class="mb-3">
-          <label for="storyPoints" class="form-label fw-medium">Story Points</label>
-          <select id="storyPoints" class="form-select" formControlName="storyPoints">
-            <option value="">Not estimated</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="5">5</option>
-            <option value="8">8</option>
-            <option value="13">13</option>
-            <option value="21">21</option>
-          </select>
-        </div>
-      </form>
-    </div>
-
-    <div class="modal-footer border-0">
-      <button type="button" class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
-        Cancel
-      </button>
-      <button type="button" class="btn btn-primary" (click)="createTask()" 
-              [disabled]="taskForm.invalid || creating()">
-        <span class="spinner-border spinner-border-sm me-2" *ngIf="creating()"></span>
-        <i class="fas fa-plus me-1" *ngIf="!creating()"></i>
-        {{ creating() ? 'Creating...' : 'Create Task' }}
-      </button>
+      </div>
     </div>
   `,
   styles: [`
-    .modal-header {
+    .fullscreen-modal-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fafafa;
+      z-index: 1055;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .fullscreen-modal-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
     }
-    
-    .btn-close {
-      filter: invert(1);
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    
-    .form-label {
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .header-text {
+      .header-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      .header-subtitle {
+        margin: 0.25rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    .fullscreen-modal-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .container-fluid {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .form-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .sidebar-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      height: fit-content;
+      position: sticky;
+      top: 0;
+    }
+
+    .sidebar-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0 0 1.5rem 0;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #f3f4f6;
+    }
+
+    .field-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
       color: #374151;
       margin-bottom: 0.5rem;
     }
-    
-    .form-control, .form-select {
-      border: 1px solid #d1d5db;
-      border-radius: 0.5rem;
+
+    .field-input {
+      width: 100%;
       padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      background: white;
+
+      &:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      &.field-textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
     }
-    
-    .form-control:focus, .form-select:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+
+    .field-display {
+      padding: 0.75rem;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    .field-error {
+      color: #dc2626;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .field-help {
+      color: #6b7280;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .fullscreen-modal-header {
+        padding: 1rem;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      .header-actions {
+        justify-content: center;
+      }
+
+      .fullscreen-modal-content {
+        padding: 1rem;
+      }
+
+      .form-section,
+      .sidebar-section {
+        padding: 1.5rem;
+      }
+
+      .col-lg-4 {
+        margin-top: 1rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .header-text .header-title {
+        font-size: 1.25rem;
+      }
+
+      .form-section,
+      .sidebar-section {
+        padding: 1rem;
+      }
     }
   `]
 })
-export class CreateTaskModalComponent {
+export class CreateTaskModalComponent implements OnInit {
   @Input() projects: Project[] = [];
   @Input() users: User[] = [];
   @Input() defaultStatus: string = 'CREATED';
@@ -253,4 +498,35 @@ export class CreateTaskModalComponent {
       }
     });
   }
+
+  getProjectName(projectId: number): string {
+    const project = this.projects.find(p => p.id === projectId);
+    return project?.name || 'Unknown Project';
+  }
+
+  onUserAssigned(user: User | null): void {
+    // Update the form control with the selected user ID
+    this.taskForm.patchValue({
+      assignedTo: user?.id || ''
+    });
+  }
+
+  onStoryPointsSelected(points: number | null): void {
+    // Update the form control with the selected story points
+    this.taskForm.patchValue({
+      storyPoints: points || ''
+    });
+  }
+
+  getStoryPointsValue(): number | null {
+    const formValue = this.taskForm.get('storyPoints')?.value;
+    if (!formValue || formValue === '') return null;
+    return parseInt(formValue);
+  }
+
+  getProjectIdValue(): number | null {
+    const projectId = this.defaultProjectId || this.taskForm.get('projectId')?.value;
+    return projectId ? parseInt(projectId) : null;
+  }
+
 }

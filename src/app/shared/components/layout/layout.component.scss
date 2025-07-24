@@ -57,20 +57,83 @@
 }
 
 // Search bar enhancements
-.input-group {
-  .input-group-text {
-    background-color: transparent;
-    border-color: #d1d5db;
-  }
-  
-  .form-control {
-    border-color: #d1d5db;
+.search-container {
+  .input-group {
+    .input-group-text {
+      background-color: transparent;
+      border-color: #d1d5db;
+    }
     
-    &:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    .form-control {
+      border-color: #d1d5db;
+      
+      &:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+      }
     }
   }
+  
+  .search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.25rem;
+    border: 1px solid #e5e7eb;
+    background-color: white;
+    border-radius: 0.5rem;
+    z-index: 1050;
+    
+    .dropdown-header {
+      padding: 0.5rem 1rem;
+      background-color: #f9fafb;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 0;
+    }
+    
+    .dropdown-item {
+      padding: 0.75rem 1rem;
+      border: none;
+      transition: background-color 0.15s ease-in-out;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: #f3f4f6;
+        text-decoration: none;
+      }
+      
+      .badge {
+        font-size: 0.65rem;
+        padding: 0.25rem 0.5rem;
+        
+        &.badge-secondary {
+          background-color: #6b7280;
+        }
+        
+        &.badge-warning {
+          background-color: #f59e0b;
+        }
+        
+        &.badge-success {
+          background-color: #10b981;
+        }
+      }
+    }
+    
+    .dropdown-item-text {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 // Dropdown menu styling

@@ -35,19 +35,19 @@ export class ProjectListComponent implements OnInit {
   
   headerActions: PageHeaderAction[] = [
     {
-      label: 'Grid View',
+      label: 'Vista Cuadrícula',
       icon: 'fas fa-th',
       action: () => this.setViewMode('grid'),
       variant: this.viewMode() === 'grid' ? 'primary' : 'outline'
     },
     {
-      label: 'Table View',
+      label: 'Vista Tabla',
       icon: 'fas fa-list',
       action: () => this.setViewMode('table'),
       variant: this.viewMode() === 'table' ? 'primary' : 'outline'
     },
     {
-      label: 'New Project',
+      label: 'Nuevo Proyecto',
       icon: 'fas fa-plus',
       action: () => this.openCreateProjectModal(),
       variant: 'primary'
@@ -80,7 +80,7 @@ export class ProjectListComponent implements OnInit {
         });
       }
     } catch (err: any) {
-      this.error.set('Failed to load projects');
+      this.error.set('Error al cargar proyectos');
       this.loading.set(false);
     }
   }
@@ -146,19 +146,19 @@ export class ProjectListComponent implements OnInit {
   private updateHeaderActions(): void {
     this.headerActions = [
       {
-        label: 'Grid View',
+        label: 'Vista Cuadrícula',
         icon: 'fas fa-th',
         action: () => this.setViewMode('grid'),
         variant: this.viewMode() === 'grid' ? 'primary' : 'outline'
       },
       {
-        label: 'Table View',
+        label: 'Vista Tabla',
         icon: 'fas fa-list',
         action: () => this.setViewMode('table'),
         variant: this.viewMode() === 'table' ? 'primary' : 'outline'
       },
       {
-        label: 'New Project',
+        label: 'Nuevo Proyecto',
         icon: 'fas fa-plus',
         action: () => this.openCreateProjectModal(),
         variant: 'primary'
@@ -171,10 +171,10 @@ export class ProjectListComponent implements OnInit {
     
     this.confirmService.confirmWithAction(
       {
-        title: 'Delete Project',
-        message: `Are you sure you want to delete "${project.name}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
+        title: 'Eliminar Proyecto',
+        message: `¿Estás seguro de que quieres eliminar "${project.name}"? Esta acción no se puede deshacer.`,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
         variant: 'danger'
       },
       () => this.projectService.deleteProject(project.id)
@@ -189,7 +189,7 @@ export class ProjectListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error deleting project:', error);
-        this.error.set('Failed to delete project. Please try again.');
+        this.error.set('Error al eliminar el proyecto. Inténtalo de nuevo.');
       }
     });
   }

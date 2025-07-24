@@ -4,6 +4,46 @@
   padding: 1rem;
 }
 
+// Project Selector Styling
+.project-selector {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  padding: 1rem;
+  
+  .form-label {
+    color: #1a1a1a;
+    font-size: 0.875rem;
+  }
+  
+  .form-select {
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    
+    &:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    }
+  }
+  
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+  }
+  
+  .btn-outline-secondary {
+    --bs-btn-border-color: #d0d0d0;
+    --bs-btn-color: #666;
+    --bs-btn-hover-bg: #f5f5f5;
+    --bs-btn-hover-border-color: #a0a0a0;
+    --bs-btn-hover-color: #1a1a1a;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+}
+
 .board-stats {
   display: flex;
   gap: 2rem;

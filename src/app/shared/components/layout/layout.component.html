@@ -14,40 +14,119 @@
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
             <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
-              <i class="fas fa-home me-2"></i>Dashboard
+              <i class="fas fa-home me-2"></i>Panel
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" routerLink="/projects" routerLinkActive="active">
-              <i class="fas fa-folder me-2"></i>Projects
+              <i class="fas fa-folder me-2"></i>Proyectos
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" routerLink="/board" routerLinkActive="active">
-              <i class="fas fa-th-large me-2"></i>Board
+              <i class="fas fa-th-large me-2"></i>Tablero
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" routerLink="/tasks" routerLinkActive="active">
-              <i class="fas fa-tasks me-2"></i>Tasks
+              <i class="fas fa-tasks me-2"></i>Tareas
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" routerLink="/calendar" routerLinkActive="active">
-              <i class="fas fa-calendar me-2"></i>Calendar
+              <i class="fas fa-calendar me-2"></i>Calendario
             </a>
           </li>
         </ul>
         
         <!-- Search Bar -->
-        <div class="d-flex align-items-center me-3">
+        <div class="d-flex align-items-center me-3 position-relative search-container">
           <div class="input-group input-group-sm" style="width: 300px;">
             <span class="input-group-text bg-transparent border-end-0">
               <i class="fas fa-search text-muted"></i>
             </span>
             <input type="text" class="form-control border-start-0" 
-                   placeholder="Search tasks, projects..." 
-                   [(ngModel)]="searchQuery">
+                   placeholder="Buscar tareas, proyectos..." 
+                   [(ngModel)]="searchQuery"
+                   (input)="onSearchInput($event)"
+                   autocomplete="off">
+            <span class="input-group-text bg-transparent border-start-0" *ngIf="searchQuery">
+              <i class="fas fa-times text-muted cursor-pointer" (click)="clearSearch()"></i>
+            </span>
+          </div>
+          
+          <!-- Search Results Dropdown -->
+          <div class="search-results dropdown-menu shadow-lg" 
+               [class.show]="showSearchResults()"
+               style="width: 100%; max-height: 400px; overflow-y: auto; z-index: 1050;">
+            
+            <!-- Loading State -->
+            <div class="dropdown-item-text text-center py-3" *ngIf="isSearching()">
+              <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                <span class="visually-hidden">Buscando...</span>
+              </div>
+              Buscando...
+            </div>
+            
+            <!-- Search Results -->
+            <div *ngIf="!isSearching() && searchResults()">
+              <!-- Projects Section -->
+              <div *ngIf="searchResults()?.projects && searchResults()!.projects.length > 0">
+                <h6 class="dropdown-header text-primary">
+                  <i class="fas fa-folder me-2"></i>Proyectos
+                </h6>
+                <a class="dropdown-item d-flex align-items-center py-2" 
+                   *ngFor="let project of searchResults()!.projects"
+                   (click)="selectSearchResult('project', project.id)">
+                  <div class="me-3">
+                    <i class="fas fa-folder text-primary"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-medium">{{ project.name }}</div>
+                    <small class="text-muted" *ngIf="project.description">
+                      {{ project.description.length > 50 ? project.description.substring(0, 50) + '...' : project.description }}
+                    </small>
+                  </div>
+                </a>
+                <div class="dropdown-divider" *ngIf="searchResults()?.tasks && searchResults()!.tasks.length > 0"></div>
+              </div>
+              
+              <!-- Tasks Section -->
+              <div *ngIf="searchResults()?.tasks && searchResults()!.tasks.length > 0">
+                <h6 class="dropdown-header text-success">
+                  <i class="fas fa-tasks me-2"></i>Tareas
+                </h6>
+                <a class="dropdown-item d-flex align-items-center py-2" 
+                   *ngFor="let task of searchResults()!.tasks"
+                   (click)="selectSearchResult('task', task.id)">
+                  <div class="me-3">
+                    <span class="badge" 
+                          [class]="'badge-' + (task.status === TaskStatus.CREATED ? 'secondary' : task.status === TaskStatus.IN_PROGRESS ? 'warning' : 'success')">
+                      {{ task.status === TaskStatus.CREATED ? 'Por hacer' : task.status === TaskStatus.IN_PROGRESS ? 'En progreso' : 'Completada' }}
+                    </span>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-medium">{{ task.title }}</div>
+                    <small class="text-muted">
+                      <i class="fas fa-folder me-1"></i>{{ task.project?.name }}
+                      <span *ngIf="task.priority" class="ms-2">
+                        <i class="fas fa-flag me-1" 
+                           [class]="'text-' + (task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'secondary')"></i>
+                        {{ task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja' }}
+                      </span>
+                    </small>
+                  </div>
+                </a>
+              </div>
+              
+              <!-- No Results -->
+              <div class="dropdown-item-text text-center py-3 text-muted" 
+                   *ngIf="(!searchResults()?.projects || searchResults()!.projects.length === 0) && 
+                          (!searchResults()?.tasks || searchResults()!.tasks.length === 0)">
+                <i class="fas fa-search-minus me-2"></i>
+                No se encontraron resultados para "{{ searchQuery }}"
+              </div>
+            </div>
           </div>
         </div>
 
@@ -55,32 +134,33 @@
         <div class="dropdown" *ngIf="currentUser()">
           <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" 
                   type="button" 
-                  data-bs-toggle="dropdown">
+                  (click)="toggleUserMenu()">
             <div class="user-avatar me-2">
               {{ getUserInitials() }}
             </div>
             <span class="d-none d-md-inline">{{ currentUser()?.name || 'User' }}</span>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end">
+          <ul class="dropdown-menu dropdown-menu-end" 
+              [class.show]="showUserMenu()">
             <li class="dropdown-header">
               <div class="fw-bold">{{ currentUser()?.name || 'User' }}</div>
               <small class="text-muted">{{ currentUser()?.email }}</small>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-              <a class="dropdown-item" routerLink="/account">
-                <i class="fas fa-user me-2"></i>Account
+              <a class="dropdown-item" routerLink="/account" (click)="showUserMenu.set(false)">
+                <i class="fas fa-user me-2"></i>Cuenta
               </a>
             </li>
             <li>
-              <a class="dropdown-item" routerLink="/settings">
-                <i class="fas fa-cog me-2"></i>Settings
+              <a class="dropdown-item" routerLink="/settings" (click)="showUserMenu.set(false)">
+                <i class="fas fa-cog me-2"></i>Configuración
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
               <button class="dropdown-item text-danger" (click)="logout()">
-                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
               </button>
             </li>
           </ul>

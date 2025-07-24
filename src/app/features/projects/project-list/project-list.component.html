@@ -1,7 +1,7 @@
 <!-- Page Header -->
 <app-page-header
-  title="My Projects"
-  subtitle="Manage your projects and collaborate with your team"
+  title="Mis Proyectos"
+  subtitle="Gestiona tus proyectos y colabora con tu equipo"
   [actions]="headerActions"
 >
 </app-page-header>
@@ -14,9 +14,9 @@
 >
   <div class="text-center">
     <div class="spinner-border text-primary mb-3" role="status">
-      <span class="visually-hidden">Loading...</span>
+      <span class="visually-hidden">Cargando...</span>
     </div>
-    <p class="text-muted">Loading projects...</p>
+    <p class="text-muted">Cargando proyectos...</p>
   </div>
 </div>
 
@@ -37,7 +37,7 @@
           <div class="fs-4 fw-bold text-primary">
             {{ getOwnedProjects().length }}
           </div>
-          <small class="text-muted">My Projects</small>
+          <small class="text-muted">Mis Proyectos</small>
         </div>
       </div>
     </div>
@@ -47,7 +47,7 @@
           <div class="fs-4 fw-bold text-info">
             {{ getSharedProjects().length }}
           </div>
-          <small class="text-muted">Shared with Me</small>
+          <small class="text-muted">Compartidos Conmigo</small>
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@
       <div class="card card-notion text-center">
         <div class="card-body">
           <div class="fs-4 fw-bold text-success">{{ getTotalTasks() }}</div>
-          <small class="text-muted">Total Tasks</small>
+          <small class="text-muted">Total de Tareas</small>
         </div>
       </div>
     </div>
@@ -63,7 +63,7 @@
       <div class="card card-notion text-center">
         <div class="card-body">
           <div class="fs-4 fw-bold text-warning">{{ getActiveProjects() }}</div>
-          <small class="text-muted">Active Projects</small>
+          <small class="text-muted">Proyectos Activos</small>
         </div>
       </div>
     </div>
@@ -88,20 +88,29 @@
                 <div class="card-body">
                   <div class="d-flex align-items-center mb-3">
                     <div
-                      class="bg-primary bg-opacity-10 rounded-circle p-2 me-3"
+                      class="rounded-circle p-2 me-3"
+                      [style.background-color]="
+                        project.color ? project.color + '20' : '#007bff20'
+                      "
                     >
-                      <i class="fas fa-folder text-primary"></i>
+                      <i
+                        [class]="project.icon || 'fas fa-folder'"
+                        [style.color]="project.color || '#007bff'"
+                      ></i>
                     </div>
                     <div class="flex-grow-1">
                       <h6 class="card-title mb-1 fw-bold">
                         {{ project.name }}
                       </h6>
                       <small class="text-muted"
-                        >Created
-                        {{ project.createdAt | date : "MMM d, y" }}</small
+                        >Creado el
+                        {{ project.createdAt | date : "d MMM y" }}</small
                       >
                     </div>
-                    <div class="position-relative" (click)="$event.stopPropagation()">
+                    <div
+                      class="position-relative"
+                      (click)="$event.stopPropagation()"
+                    >
                       <button
                         class="btn btn-sm btn-outline-secondary"
                         type="button"
@@ -109,10 +118,15 @@
                       >
                         <i class="fas fa-ellipsis-v"></i>
                       </button>
-                      <ul 
+                      <ul
                         class="dropdown-menu"
                         [class.show]="isDropdownOpen(project.id)"
-                        style="position: absolute; right: 0; top: 100%; z-index: 1000;"
+                        style="
+                          position: absolute;
+                          right: 0;
+                          top: 100%;
+                          z-index: 1000;
+                        "
                         *ngIf="isDropdownOpen(project.id)"
                       >
                         <li>
@@ -120,7 +134,7 @@
                             class="dropdown-item"
                             [routerLink]="['/projects', project.id]"
                             (click)="closeDropdown()"
-                            ><i class="fas fa-eye me-2"></i>View</a
+                            ><i class="fas fa-eye me-2"></i>Ver</a
                           >
                         </li>
                         <li><hr class="dropdown-divider" /></li>
@@ -128,9 +142,12 @@
                           <button
                             class="dropdown-item text-danger"
                             type="button"
-                            (click)="deleteProject(project, $event); closeDropdown()"
-                            ><i class="fas fa-trash me-2"></i>Delete</button
+                            (click)="
+                              deleteProject(project, $event); closeDropdown()
+                            "
                           >
+                            <i class="fas fa-trash me-2"></i>Eliminar
+                          </button>
                         </li>
                       </ul>
                     </div>
@@ -154,7 +171,7 @@
                     <div class="d-flex gap-3">
                       <span class="badge bg-light text-dark">
                         <i class="fas fa-tasks me-1"></i
-                        >{{ project.tasks?.length || 0 }} tasks
+                        >{{ project.tasks?.length || 0 }} tareas
                       </span>
                       <span
                         class="badge bg-light text-dark"
@@ -163,7 +180,7 @@
                         "
                       >
                         <i class="fas fa-users me-1"></i
-                        >{{ project.sharedUsers.length }} shared
+                        >{{ project.sharedUsers.length }} compartido
                       </span>
                     </div>
                   </div>
@@ -176,7 +193,7 @@
                       ></div>
                     </div>
                     <small class="text-muted"
-                      >{{ getProjectProgress(project) }}% complete</small
+                      >{{ getProjectProgress(project) }}% completado</small
                     >
                   </div>
                 </div>
@@ -189,12 +206,12 @@
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
-                  <th scope="col">Project</th>
-                  <th scope="col">Tasks</th>
-                  <th scope="col">Progress</th>
-                  <th scope="col">Shared</th>
-                  <th scope="col">Created</th>
-                  <th scope="col" class="text-end">Actions</th>
+                  <th scope="col">Proyecto</th>
+                  <th scope="col">Tareas</th>
+                  <th scope="col">Progreso</th>
+                  <th scope="col">Compartido</th>
+                  <th scope="col">Creado</th>
+                  <th scope="col" class="text-end">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -207,9 +224,15 @@
                   <td>
                     <div class="d-flex align-items-center">
                       <div
-                        class="bg-primary bg-opacity-10 rounded-circle p-2 me-3"
+                        class="rounded-circle p-2 me-3"
+                        [style.background-color]="
+                          project.color ? project.color + '20' : '#007bff20'
+                        "
                       >
-                        <i class="fas fa-folder text-primary"></i>
+                        <i
+                          [class]="project.icon || 'fas fa-folder'"
+                          [style.color]="project.color || '#007bff'"
+                        ></i>
                       </div>
                       <div>
                         <h6 class="mb-1 fw-bold">{{ project.name }}</h6>
@@ -267,7 +290,7 @@
                   </td>
                   <td>
                     <small class="text-muted">{{
-                      project.createdAt | date : "MMM d, y"
+                      project.createdAt | date : "dd/MM/yyyy"
                     }}</small>
                   </td>
                   <td class="text-end">
@@ -301,7 +324,7 @@
           <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold">
               <i class="fas fa-user-friends me-2 text-info"></i>
-              Shared with Me ({{ getSharedProjects().length }})
+              Compartidos Conmigo ({{ getSharedProjects().length }})
             </h5>
           </div>
         </div>
@@ -319,15 +342,23 @@
               >
                 <div class="card-body">
                   <div class="d-flex align-items-center mb-3">
-                    <div class="bg-info bg-opacity-10 rounded-circle p-2 me-3">
-                      <i class="fas fa-folder-open text-info"></i>
+                    <div
+                      class="rounded-circle p-2 me-3"
+                      [style.background-color]="
+                        project.color ? project.color + '20' : '#17a2b820'
+                      "
+                    >
+                      <i
+                        [class]="project.icon || 'fas fa-folder-open'"
+                        [style.color]="project.color || '#17a2b8'"
+                      ></i>
                     </div>
                     <div class="flex-grow-1">
                       <h6 class="card-title mb-1 fw-bold">
                         {{ project.name }}
                       </h6>
                       <small class="text-muted">
-                        <i class="fas fa-share-alt me-1"></i>Shared with you
+                        <i class="fas fa-share-alt me-1"></i>Compartido contigo
                       </small>
                     </div>
                   </div>
@@ -361,7 +392,7 @@
                       ></div>
                     </div>
                     <small class="text-muted"
-                      >{{ getProjectProgress(project) }}% complete</small
+                      >{{ getProjectProgress(project) }}% completado</small
                     >
                   </div>
                 </div>
@@ -374,11 +405,11 @@
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
-                  <th scope="col">Project</th>
-                  <th scope="col">Tasks</th>
-                  <th scope="col">Progress</th>
-                  <th scope="col">Owner</th>
-                  <th scope="col" class="text-end">Actions</th>
+                  <th scope="col">Proyecto</th>
+                  <th scope="col">Tareas</th>
+                  <th scope="col">Progreso</th>
+                  <th scope="col">Propietario</th>
+                  <th scope="col" class="text-end">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -391,9 +422,15 @@
                   <td>
                     <div class="d-flex align-items-center">
                       <div
-                        class="bg-info bg-opacity-10 rounded-circle p-2 me-3"
+                        class="rounded-circle p-2 me-3"
+                        [style.background-color]="
+                          project.color ? project.color + '20' : '#17a2b820'
+                        "
                       >
-                        <i class="fas fa-folder-open text-info"></i>
+                        <i
+                          [class]="project.icon || 'fas fa-folder-open'"
+                          [style.color]="project.color || '#17a2b8'"
+                        ></i>
                       </div>
                       <div>
                         <h6 class="mb-1 fw-bold">{{ project.name }}</h6>
@@ -433,7 +470,7 @@
                   </td>
                   <td>
                     <span class="badge bg-info bg-opacity-10 text-info">
-                      <i class="fas fa-share-alt me-1"></i>Shared
+                      <i class="fas fa-share-alt me-1"></i>Compartido
                     </span>
                   </td>
                   <td class="text-end">
@@ -459,12 +496,12 @@
       <div class="card card-notion">
         <div class="card-body text-center py-5">
           <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-          <h5>No projects yet</h5>
+          <h5>Aún no tienes proyectos</h5>
           <p class="text-muted">
-            Create your first project to get started with task management
+            Crea tu primer proyecto para comenzar con la gestión de tareas
           </p>
           <button class="btn btn-primary" (click)="openCreateProjectModal()">
-            <i class="fas fa-plus me-2"></i>Create Your First Project
+            <i class="fas fa-plus me-2"></i>Crear Tu Primer Proyecto
           </button>
         </div>
       </div>

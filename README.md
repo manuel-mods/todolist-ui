@@ -21,13 +21,23 @@ A modern, responsive task management application built with Angular 19. This fro
 - **Project sharing** with other users via email
 - **Visual project cards** showing task counts and shared users
 - **Owner vs shared project** distinction
+- **Project deletion** with cascade task deletion
+- **Project customization** with colors and icons
+- **Project analytics** and progress tracking
 
 ### ✅ Task Management
 - **Kanban-style task board** (To Do → In Progress → Done)
 - **Create tasks** with title and description
 - **Quick status updates** via action buttons
+- **Task detail views** (modal and standalone URL routes)
+- **Task comments** with activity history tracking
+- **Checklist functionality** within tasks
+- **Task assignment** to team members
+- **Priority levels** with visual indicators
+- **Due dates** and deadline tracking
 - **Task filtering** by project, status, and search query
 - **All tasks overview** across all projects
+- **Task deletion** with confirmation modals
 
 ### 🎨 Modern UI/UX
 - **Responsive design** for mobile, tablet, and desktop
@@ -35,6 +45,9 @@ A modern, responsive task management application built with Angular 19. This fro
 - **Smooth animations** and hover effects
 - **Loading states** and error handling
 - **FontAwesome icons** throughout the interface
+- **Drag-and-drop** task status changes
+- **Confirmation modals** for destructive actions
+- **Advanced search and filtering** capabilities
 
 ## 🚀 Quick Start
 
@@ -88,12 +101,18 @@ src/app/
 ├── features/              # Feature-specific modules
 │   ├── auth/             # Authentication (login, register)
 │   │   ├── login/
-│   │   └── register/
+│   │   ├── register/
+│   │   └── forgot-password/
 │   ├── projects/         # Project management
 │   │   ├── project-list/
 │   │   └── project-detail/
-│   └── tasks/            # Task management
-│       └── task-list/
+│   ├── tasks/            # Task management
+│   │   ├── task-list/
+│   │   └── task-detail/
+│   ├── dashboard/        # Analytics and overview
+│   ├── calendar/         # Calendar view
+│   ├── settings/         # User settings
+│   └── board/            # Kanban board view
 └── environments/         # Environment configurations
 ```
 
@@ -158,8 +177,10 @@ The frontend connects to the todolist-api backend:
 ### Key Endpoints
 - **Authentication**: Login, register, password reset via `/api/auth/`
 - **Projects**: CRUD operations and sharing functionality via `/api/projects/`
-- **Tasks**: Create, update, and manage task status via `/api/tasks/`
-- **Users**: User management via `/api/users/`
+- **Tasks**: Create, update, delete and manage task status via `/api/tasks/`
+- **Comments**: Task comments and activity tracking via `/api/tasks/:id/comments`
+- **Checklist**: Task checklist items via `/api/tasks/:id/checklist`
+- **Users**: User management and profile updates via `/api/users/`
 
 ## 🛡️ Security Features
 
@@ -218,6 +239,50 @@ export const environment = {
 };
 ```
 
+## 🚧 Development Roadmap
+
+### Currently Implemented ✅
+- User authentication and authorization
+- Project creation, sharing, and basic management
+- Task CRUD operations with status tracking
+- Kanban-style board interface
+- Responsive design with modern UI
+
+### In Development 🔄
+- **Project deletion** with cascade task deletion
+- **Task detail views** (modal and standalone routes)
+- **Task comments** and activity history
+- **Checklist functionality** within tasks
+- **Task assignment** and priority management
+
+### Planned Features 📋
+- **Advanced Task Features**
+  - Due dates and deadline tracking
+  - Task labels and custom tags
+  - Subtask functionality
+  - Drag-and-drop status changes
+  - Advanced search and filtering
+
+- **Enhanced Project Management**
+  - Project analytics and progress tracking
+  - Custom project colors and icons
+  - Project templates
+  - Bulk operations
+
+- **Collaboration Features**
+  - Real-time notifications
+  - @mentions in comments
+  - Activity feeds
+  - Team member management
+
+- **Productivity Features**
+  - Time tracking and estimation
+  - Calendar integration
+  - File attachments
+  - Email notifications
+
+For a complete project vision and detailed roadmap, see [VISION.md](./VISION.md).
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -234,8 +299,14 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For issues and questions:
 - Check the [CLAUDE.md](./CLAUDE.md) file for detailed development documentation
+- Review the [VISION.md](./VISION.md) file for project goals and roadmap
 - Create an issue in the repository
 - Contact the development team
+
+## 📚 Additional Documentation
+
+- **[VISION.md](./VISION.md)** - Project vision, goals, and long-term roadmap
+- **[CLAUDE.md](./CLAUDE.md)** - Detailed development documentation and architecture guide
 
 ---
 

@@ -4,7 +4,7 @@
     <div class="spinner-border text-primary mb-3" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
-    <p class="text-muted">Loading tasks...</p>
+    <p class="text-muted">Cargando tareas...</p>
   </div>
 </div>
 
@@ -18,7 +18,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-number">{{ getStatistics().created }}</div>
-        <div class="stat-label">Created</div>
+        <div class="stat-label">Creadas</div>
       </div>
     </div>
     
@@ -28,7 +28,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-number">{{ getStatistics().inProgress }}</div>
-        <div class="stat-label">In Progress</div>
+        <div class="stat-label">En Progreso</div>
       </div>
     </div>
     
@@ -38,7 +38,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-number">{{ getStatistics().blocked }}</div>
-        <div class="stat-label">Blocked</div>
+        <div class="stat-label">Bloqueadas</div>
       </div>
     </div>
     
@@ -48,7 +48,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-number">{{ getStatistics().testing }}</div>
-        <div class="stat-label">Testing</div>
+        <div class="stat-label">En Pruebas</div>
       </div>
     </div>
     
@@ -58,7 +58,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-number">{{ getStatistics().ready }}</div>
-        <div class="stat-label">Ready</div>
+        <div class="stat-label">Listas</div>
       </div>
     </div>
     
@@ -68,7 +68,7 @@
       </div>
       <div class="stat-content">
         <div class="stat-number">{{ getStatistics().finished }}</div>
-        <div class="stat-label">Finished</div>
+        <div class="stat-label">Terminadas</div>
       </div>
     </div>
   </div>
@@ -79,12 +79,12 @@
     <div class="kanban-column column-created">
       <div class="column-header">
         <div class="column-title">
-          <h3>Created</h3>
+          <h3>Creadas</h3>
           <span class="task-count">{{ getTasksByStatus('CREATED').length }}</span>
         </div>
         <button class="add-task-btn" (click)="createTask('CREATED')" *ngIf="allowCreateTask">
           <i class="fas fa-plus"></i>
-          Add task
+          Agregar tarea
         </button>
       </div>
       <div class="column-content"
@@ -117,18 +117,24 @@
               </div>
             </div>
           </div>
+          <div class="task-subtasks" *ngIf="getSubtaskCount(task) > 0">
+            <div class="subtask-indicator">
+              <i class="fas fa-sitemap"></i>
+              <span class="subtask-count">{{ getSubtaskCount(task) }} subtarea{{ getSubtaskCount(task) === 1 ? '' : 's' }}</span>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
             <div class="task-bottom">
               <div class="task-info">
-                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Puntos de Historia: ' + task.storyPoints">
                   {{ task.storyPoints }}
                 </span>
-                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Vence: ' + (task.dueDate | date:'d MMM')">
                   <i class="fas fa-calendar"></i>
-                  {{ task.dueDate | date:'MMM d' }}
+                  {{ task.dueDate | date:'d MMM' }}
                 </span>
               </div>
               <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
@@ -139,7 +145,7 @@
         </div>
         <div class="empty-state" *ngIf="getTasksByStatus('CREATED').length === 0">
           <i class="fas fa-plus-circle"></i>
-          <p>No tasks yet</p>
+          <p>Aún no hay tareas</p>
         </div>
       </div>
     </div>
@@ -148,12 +154,12 @@
     <div class="kanban-column column-progress">
       <div class="column-header">
         <div class="column-title">
-          <h3>In Progress</h3>
+          <h3>En Progreso</h3>
           <span class="task-count">{{ getTasksByStatus('IN_PROGRESS').length }}</span>
         </div>
         <button class="add-task-btn" (click)="createTask('IN_PROGRESS')" *ngIf="allowCreateTask">
           <i class="fas fa-plus"></i>
-          Add task
+          Agregar tarea
         </button>
       </div>
       <div class="column-content"
@@ -186,18 +192,24 @@
               </div>
             </div>
           </div>
+          <div class="task-subtasks" *ngIf="getSubtaskCount(task) > 0">
+            <div class="subtask-indicator">
+              <i class="fas fa-sitemap"></i>
+              <span class="subtask-count">{{ getSubtaskCount(task) }} subtarea{{ getSubtaskCount(task) === 1 ? '' : 's' }}</span>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
             <div class="task-bottom">
               <div class="task-info">
-                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Puntos de Historia: ' + task.storyPoints">
                   {{ task.storyPoints }}
                 </span>
-                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Vence: ' + (task.dueDate | date:'d MMM')">
                   <i class="fas fa-calendar"></i>
-                  {{ task.dueDate | date:'MMM d' }}
+                  {{ task.dueDate | date:'d MMM' }}
                 </span>
               </div>
               <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
@@ -208,7 +220,7 @@
         </div>
         <div class="empty-state" *ngIf="getTasksByStatus('IN_PROGRESS').length === 0">
           <i class="fas fa-play-circle"></i>
-          <p>No tasks in progress</p>
+          <p>No hay tareas en progreso</p>
         </div>
       </div>
     </div>
@@ -217,12 +229,12 @@
     <div class="kanban-column column-blocked">
       <div class="column-header">
         <div class="column-title">
-          <h3>Blocked</h3>
+          <h3>Bloqueadas</h3>
           <span class="task-count">{{ getTasksByStatus('BLOCKED').length }}</span>
         </div>
         <button class="add-task-btn" (click)="createTask('BLOCKED')" *ngIf="allowCreateTask">
           <i class="fas fa-plus"></i>
-          Add task
+          Agregar tarea
         </button>
       </div>
       <div class="column-content"
@@ -255,18 +267,24 @@
               </div>
             </div>
           </div>
+          <div class="task-subtasks" *ngIf="getSubtaskCount(task) > 0">
+            <div class="subtask-indicator">
+              <i class="fas fa-sitemap"></i>
+              <span class="subtask-count">{{ getSubtaskCount(task) }} subtarea{{ getSubtaskCount(task) === 1 ? '' : 's' }}</span>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
             <div class="task-bottom">
               <div class="task-info">
-                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Puntos de Historia: ' + task.storyPoints">
                   {{ task.storyPoints }}
                 </span>
-                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Vence: ' + (task.dueDate | date:'d MMM')">
                   <i class="fas fa-calendar"></i>
-                  {{ task.dueDate | date:'MMM d' }}
+                  {{ task.dueDate | date:'d MMM' }}
                 </span>
               </div>
               <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
@@ -277,7 +295,7 @@
         </div>
         <div class="empty-state" *ngIf="getTasksByStatus('BLOCKED').length === 0">
           <i class="fas fa-ban"></i>
-          <p>No blocked tasks</p>
+          <p>No hay tareas bloqueadas</p>
         </div>
       </div>
     </div>
@@ -286,12 +304,12 @@
     <div class="kanban-column column-testing">
       <div class="column-header">
         <div class="column-title">
-          <h3>Testing</h3>
+          <h3>En Pruebas</h3>
           <span class="task-count">{{ getTasksByStatus('TESTING').length }}</span>
         </div>
         <button class="add-task-btn" (click)="createTask('TESTING')" *ngIf="allowCreateTask">
           <i class="fas fa-plus"></i>
-          Add task
+          Agregar tarea
         </button>
       </div>
       <div class="column-content"
@@ -324,18 +342,24 @@
               </div>
             </div>
           </div>
+          <div class="task-subtasks" *ngIf="getSubtaskCount(task) > 0">
+            <div class="subtask-indicator">
+              <i class="fas fa-sitemap"></i>
+              <span class="subtask-count">{{ getSubtaskCount(task) }} subtarea{{ getSubtaskCount(task) === 1 ? '' : 's' }}</span>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
             <div class="task-bottom">
               <div class="task-info">
-                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Puntos de Historia: ' + task.storyPoints">
                   {{ task.storyPoints }}
                 </span>
-                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Vence: ' + (task.dueDate | date:'d MMM')">
                   <i class="fas fa-calendar"></i>
-                  {{ task.dueDate | date:'MMM d' }}
+                  {{ task.dueDate | date:'d MMM' }}
                 </span>
               </div>
               <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
@@ -346,7 +370,7 @@
         </div>
         <div class="empty-state" *ngIf="getTasksByStatus('TESTING').length === 0">
           <i class="fas fa-flask"></i>
-          <p>No tasks in testing</p>
+          <p>No hay tareas en pruebas</p>
         </div>
       </div>
     </div>
@@ -355,12 +379,12 @@
     <div class="kanban-column column-ready">
       <div class="column-header">
         <div class="column-title">
-          <h3>Ready</h3>
+          <h3>Listas</h3>
           <span class="task-count">{{ getTasksByStatus('READY_TO_FINISH').length }}</span>
         </div>
         <button class="add-task-btn" (click)="createTask('READY_TO_FINISH')" *ngIf="allowCreateTask">
           <i class="fas fa-plus"></i>
-          Add task
+          Agregar tarea
         </button>
       </div>
       <div class="column-content"
@@ -393,18 +417,24 @@
               </div>
             </div>
           </div>
+          <div class="task-subtasks" *ngIf="getSubtaskCount(task) > 0">
+            <div class="subtask-indicator">
+              <i class="fas fa-sitemap"></i>
+              <span class="subtask-count">{{ getSubtaskCount(task) }} subtarea{{ getSubtaskCount(task) === 1 ? '' : 's' }}</span>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
             <div class="task-bottom">
               <div class="task-info">
-                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Puntos de Historia: ' + task.storyPoints">
                   {{ task.storyPoints }}
                 </span>
-                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Vence: ' + (task.dueDate | date:'d MMM')">
                   <i class="fas fa-calendar"></i>
-                  {{ task.dueDate | date:'MMM d' }}
+                  {{ task.dueDate | date:'d MMM' }}
                 </span>
               </div>
               <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
@@ -415,7 +445,7 @@
         </div>
         <div class="empty-state" *ngIf="getTasksByStatus('READY_TO_FINISH').length === 0">
           <i class="fas fa-check-circle"></i>
-          <p>No tasks ready</p>
+          <p>No hay tareas listas</p>
         </div>
       </div>
     </div>
@@ -424,12 +454,12 @@
     <div class="kanban-column column-finished">
       <div class="column-header">
         <div class="column-title">
-          <h3>Finished</h3>
+          <h3>Terminadas</h3>
           <span class="task-count">{{ getTasksByStatus('FINISHED').length }}</span>
         </div>
         <button class="add-task-btn" (click)="createTask('FINISHED')" *ngIf="allowCreateTask">
           <i class="fas fa-plus"></i>
-          Add task
+          Agregar tarea
         </button>
       </div>
       <div class="column-content"
@@ -462,18 +492,24 @@
               </div>
             </div>
           </div>
+          <div class="task-subtasks" *ngIf="getSubtaskCount(task) > 0">
+            <div class="subtask-indicator">
+              <i class="fas fa-sitemap"></i>
+              <span class="subtask-count">{{ getSubtaskCount(task) }} subtarea{{ getSubtaskCount(task) === 1 ? '' : 's' }}</span>
+            </div>
+          </div>
           <div class="task-meta">
             <div class="task-labels">
               <span class="label" *ngFor="let label of task.labels?.slice(0, 2)">{{ label }}</span>
             </div>
             <div class="task-bottom">
               <div class="task-info">
-                <span class="story-points" *ngIf="task.storyPoints" [title]="'Story Points: ' + task.storyPoints">
+                <span class="story-points" *ngIf="task.storyPoints" [title]="'Puntos de Historia: ' + task.storyPoints">
                   {{ task.storyPoints }}
                 </span>
-                <span class="due-date" *ngIf="task.dueDate" [title]="'Due: ' + (task.dueDate | date:'MMM d')">
+                <span class="due-date" *ngIf="task.dueDate" [title]="'Vence: ' + (task.dueDate | date:'d MMM')">
                   <i class="fas fa-calendar"></i>
-                  {{ task.dueDate | date:'MMM d' }}
+                  {{ task.dueDate | date:'d MMM' }}
                 </span>
               </div>
               <div class="task-assignee" *ngIf="task.assignedTo" [title]="getAssigneeName(task.assignedTo)">
@@ -484,7 +520,7 @@
         </div>
         <div class="empty-state" *ngIf="getTasksByStatus('FINISHED').length === 0">
           <i class="fas fa-trophy"></i>
-          <p>No finished tasks</p>
+          <p>No hay tareas terminadas</p>
         </div>
       </div>
     </div>

@@ -53,7 +53,7 @@ export class DashboardComponent implements OnInit {
   
   headerActions: PageHeaderAction[] = [
     {
-      label: 'New Project',
+      label: 'Nuevo Proyecto',
       icon: 'fas fa-plus',
       action: () => this.createNewProject(),
       variant: 'primary'
@@ -115,7 +115,7 @@ export class DashboardComponent implements OnInit {
         return {
           id: project.id,
           name: project.name,
-          description: 'Discover a seamless blend of creativity and efficiency',
+          description: 'Descubre una mezcla perfecta de creatividad y eficiencia',
           category: this.getProjectCategory(project.name),
           tasksCount: projectTasks.length,
           completedTasks,
@@ -140,8 +140,8 @@ export class DashboardComponent implements OnInit {
   }
   
   createNewProject(): void {
-    // TODO: Implement project creation
-    console.log('Create new project');
+    // TODO: Implementar creación de proyecto
+    console.log('Crear nuevo proyecto');
   }
   
 }

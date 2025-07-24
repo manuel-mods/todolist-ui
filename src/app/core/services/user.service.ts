@@ -20,4 +20,8 @@ export class UserService {
   getAllUsers(): Observable<User[]> {
     return this.api.get<User[]>('/users');
   }
+
+  searchUsersByEmail(email: string, limit: number = 10): Observable<User[]> {
+    return this.api.get<User[]>(`/users/search?email=${encodeURIComponent(email)}&limit=${limit}`);
+  }
 }

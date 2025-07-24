@@ -31,6 +31,11 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
+  getBlob(endpoint: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}${endpoint}`, { responseType: 'blob' })
+      .pipe(catchError(this.handleError));
+  }
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An error occurred';
 

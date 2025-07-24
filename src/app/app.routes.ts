@@ -61,15 +61,29 @@ export const routes: Routes = [
       {
         path: 'projects/:id',
         loadComponent: () =>
-          import(
-            './features/projects/project-detail/project-detail.component'
-          ).then((m) => m.ProjectDetailComponent),
+          import('./features/board/board.component').then(
+            (m) => m.BoardComponent
+          ),
+      },
+      {
+        path: 'projects/:id/tasks/:taskId',
+        loadComponent: () =>
+          import('./features/board/board.component').then(
+            (m) => m.BoardComponent
+          ),
+      },
+      {
+        path: 'projects/:id/documentation',
+        loadComponent: () =>
+          import('./features/projects/documentation/documentation.component').then(
+            (m) => m.DocumentationComponent
+          ),
       },
       {
         path: 'tasks',
         loadComponent: () =>
-          import('./features/tasks/task-list/task-list.component').then(
-            (m) => m.TaskListComponent
+          import('./features/board/board.component').then(
+            (m) => m.BoardComponent
           ),
       },
       {

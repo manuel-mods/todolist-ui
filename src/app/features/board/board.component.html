@@ -1,48 +1,86 @@
 <!-- Page Header -->
 <app-page-header 
-  title="Board" 
-  subtitle="Kanban view of all tasks across projects"
-  [actions]="headerActions"
-  [showFilters]="showFilters()">
+  *ngIf="!loading() && !error()"
+  [title]="getPageTitle()" 
+  [subtitle]="getPageSubtitle()"
+  [actions]="headerActions">
+
+  <!-- Breadcrumb (only in single project mode) -->
+  <nav aria-label="breadcrumb" class="mb-3" *ngIf="isSingleProjectMode()">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a routerLink="/projects" class="text-decoration-none">Proyectos</a></li>
+      <li class="breadcrumb-item active">{{ getCurrentProject()?.name }}</li>
+    </ol>
+  </nav>
+
+  <!-- Project Selector (only in multi-project mode) -->
+  <div class="project-selector mb-3" *ngIf="!isSingleProjectMode()">
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-2">
+        <label class="form-label mb-0 fw-semibold">Proyecto:</label>
+        <select 
+          class="form-select form-select-sm" 
+          [value]="selectedProject()?.id || ''"
+          (change)="onProjectSelectChange($event)"
+          style="min-width: 200px;">
+          <option value="">Todos los Proyectos</option>
+          <option *ngFor="let project of projects()" [value]="project.id">
+            {{ project.name }}
+          </option>
+        </select>
+      </div>
+      
+      <div *ngIf="selectedProject()" class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary">{{ selectedProject()?.name }}</span>
+        <button 
+          type="button" 
+          class="btn btn-sm btn-outline-secondary"
+          (click)="clearProjectSelection()"
+          title="Limpiar selección">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </div>
   
   <!-- Filters Panel -->
-  <div class="card card-notion">
+  <div class="card card-notion" *ngIf="showFilters()">
     <div class="card-body">
       <div class="row g-3">
-        <div class="col-md-3">
-          <label class="form-label small fw-medium">Project</label>
+        <div class="col-md-3" *ngIf="!isSingleProjectMode()">
+          <label class="form-label small fw-medium">Proyecto</label>
           <select class="form-select form-select-sm" [(ngModel)]="filters.project" (change)="applyFilters()">
-            <option value="">All Projects</option>
+            <option value="">Todos los Proyectos</option>
             <option *ngFor="let project of projects()" [value]="project.id">{{ project.name }}</option>
           </select>
         </div>
-        <div class="col-md-2">
-          <label class="form-label small fw-medium">Assignee</label>
+        <div class="col-md-3">
+          <label class="form-label small fw-medium">Asignado a</label>
           <select class="form-select form-select-sm" [(ngModel)]="filters.assignee" (change)="applyFilters()">
-            <option value="">All Assignees</option>
+            <option value="">Todos los Asignados</option>
             <option *ngFor="let user of users()" [value]="user.id">{{ user.name }}</option>
           </select>
         </div>
         <div class="col-md-2">
-          <label class="form-label small fw-medium">Priority</label>
+          <label class="form-label small fw-medium">Prioridad</label>
           <select class="form-select form-select-sm" [(ngModel)]="filters.priority" (change)="applyFilters()">
-            <option value="">All Priorities</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
+            <option value="">Todas las Prioridades</option>
+            <option value="high">Alta</option>
+            <option value="medium">Media</option>
+            <option value="low">Baja</option>
           </select>
         </div>
         <div class="col-md-2">
-          <label class="form-label small fw-medium">Labels</label>
+          <label class="form-label small fw-medium">Etiquetas</label>
           <select class="form-select form-select-sm" [(ngModel)]="filters.label" (change)="applyFilters()">
-            <option value="">All Labels</option>
+            <option value="">Todas las Etiquetas</option>
             <option *ngFor="let label of labels()" [value]="label.name">{{ label.name }}</option>
           </select>
         </div>
         <div class="col-md-3">
-          <label class="form-label small fw-medium">Search</label>
+          <label class="form-label small fw-medium">Buscar</label>
           <input type="text" class="form-control form-control-sm" 
-                 placeholder="Search tasks..." 
+                 placeholder="Buscar tareas..." 
                  [(ngModel)]="filters.search"
                  (keyup)="applyFilters()">
         </div>
@@ -50,24 +88,119 @@
       <div class="d-flex justify-content-between align-items-center mt-3">
         <div class="d-flex gap-2">
           <button class="btn btn-outline-secondary btn-sm" (click)="clearFilters()">
-            <i class="fas fa-times me-1"></i>Clear All
+            <i class="fas fa-times me-1"></i>Limpiar Todo
           </button>
         </div>
-        <small class="text-muted">{{ filteredTasks.length }} of {{ tasks().length }} tasks shown</small>
+        <small class="text-muted">{{ getFilteredTasks().length }} de {{ tasks().length }} tareas mostradas</small>
       </div>
     </div>
   </div>
 </app-page-header>
 
-<!-- Shared Kanban Board Component -->
-<app-kanban-board
-  [tasks]="filteredTasks"
-  [projects]="projects()"
-  [users]="users()"
-  [loading]="loading()"
-  [showProject]="true"
-  [allowCreateTask]="true"
-  (taskStatusChanged)="onTaskStatusChanged($event)"
-  (taskCreated)="onTaskCreated($event)"
-  (taskUpdated)="onTaskUpdated($event)">
-</app-kanban-board>
+<!-- Error State -->
+<div class="container-fluid px-4" *ngIf="error() && !loading()">
+  <div class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ error() }}
+    <button class="btn btn-outline-danger btn-sm ms-3" (click)="loadBoardData()">
+      <i class="fas fa-redo me-1"></i>Intentar de Nuevo
+    </button>
+  </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="container-fluid px-4" *ngIf="!error()">
+  <!-- Kanban Board -->
+  <app-kanban-board
+    [tasks]="getFilteredTasks()"
+    [projects]="projects()"
+    [users]="users()"
+    [loading]="loading()"
+    [showProject]="!isSingleProjectMode()"
+    [allowCreateTask]="true"
+    [currentProjectId]="projectId() || undefined"
+    (taskStatusChanged)="onTaskStatusChanged($event)"
+    (taskCreated)="onTaskCreated($event)"
+    (taskUpdated)="onTaskUpdated($event)"
+    (taskClicked)="openTaskModal($event)">
+  </app-kanban-board>
+</div>
+
+<!-- Project Information Offcanvas (only in single project mode) -->
+<ng-template #membersOffcanvas let-offcanvas>
+  <div class="offcanvas-header">
+    <h4 class="offcanvas-title">{{ getCurrentProject()?.name }}</h4>
+    <button type="button" class="btn-close" aria-label="Cerrar" (click)="offcanvas.dismiss()"></button>
+  </div>
+  <div class="offcanvas-body">
+    <!-- Project Description -->
+    <div class="mb-4" *ngIf="getCurrentProject()?.description">
+      <h6 class="fw-bold mb-2">Descripción</h6>
+      <p class="text-muted">{{ getCurrentProject()?.description }}</p>
+    </div>
+
+    <!-- Project Stats -->
+    <div class="mb-4">
+      <h6 class="fw-bold mb-3">Estadísticas del Proyecto</h6>
+      <div class="row g-2">
+        <div class="col-6">
+          <div class="card bg-light">
+            <div class="card-body py-2 px-3">
+              <div class="d-flex justify-content-between">
+                <span class="small text-muted">Total</span>
+                <span class="fw-bold">{{ tasks().length }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card bg-success bg-opacity-10">
+            <div class="card-body py-2 px-3">
+              <div class="d-flex justify-content-between">
+                <span class="small text-muted">Completadas</span>
+                <span class="fw-bold text-success">{{ completedTasksCount }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card bg-warning bg-opacity-10">
+            <div class="card-body py-2 px-3">
+              <div class="d-flex justify-content-between">
+                <span class="small text-muted">En progreso</span>
+                <span class="fw-bold text-warning">{{ inProgressTasksCount }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card bg-info bg-opacity-10">
+            <div class="card-body py-2 px-3">
+              <div class="d-flex justify-content-between">
+                <span class="small text-muted">Pendientes</span>
+                <span class="fw-bold text-info">{{ pendingTasksCount }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project Members -->
+    <div class="mb-4">
+      <app-project-users [project]="getCurrentProject()!"></app-project-users>
+    </div>
+
+    <!-- Project Actions -->
+    <div class="mb-3">
+      <h6 class="fw-bold mb-3">Acciones</h6>
+      <div class="d-grid gap-2">
+        <button class="btn btn-outline-secondary btn-sm" (click)="openDocumentation(); offcanvas.dismiss()">
+          <i class="fas fa-book me-1"></i> Documentación
+        </button>
+        <button class="btn btn-outline-info btn-sm" routerLink="/projects" (click)="offcanvas.dismiss()">
+          <i class="fas fa-arrow-left me-1"></i> Volver a Proyectos
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

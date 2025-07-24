@@ -1,6 +1,8 @@
-import { Component, inject, signal, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, signal, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgbModal, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 import { TaskService } from '../../core/services/task.service';
 import { ProjectService } from '../../core/services/project.service';
 import { UserService } from '../../core/services/user.service';
@@ -8,43 +10,43 @@ import { AuthService } from '../../core/services/auth.service';
 import { Task, TaskStatus, Project, User, Label } from '../../core/models';
 import { PageHeaderComponent, PageHeaderAction } from '../../shared/components/page-header/page-header.component';
 import { KanbanBoardComponent, TaskStatistics } from '../../shared/components/kanban-board/kanban-board.component';
+import { ProjectUsersComponent } from '../../shared/components/project-users/project-users.component';
+import { TaskDetailModalComponent } from '../../shared/components/modals/task-detail-modal.component';
 
 @Component({
   selector: 'app-board',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageHeaderComponent, KanbanBoardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, PageHeaderComponent, KanbanBoardComponent, ProjectUsersComponent],
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss']
 })
 export class BoardComponent implements OnInit {
   @ViewChild(KanbanBoardComponent) kanbanBoard!: KanbanBoardComponent;
+  @ViewChild('membersOffcanvas') membersOffcanvasTemplate!: TemplateRef<any>;
   
   private taskService = inject(TaskService);
   private projectService = inject(ProjectService);
   private userService = inject(UserService);
   private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private modalService = inject(NgbModal);
+  private offcanvasService = inject(NgbOffcanvas);
 
   tasks = signal<Task[]>([]);
   projects = signal<Project[]>([]);
   users = signal<User[]>([]);
   labels = signal<Label[]>([]);
   loading = signal(true);
+  error = signal<string | null>(null);
   showFilters = signal(false);
+  selectedProject = signal<Project | null>(null);
+  
+  // Single project mode (when projectId is provided)
+  projectId = signal<number | null>(null);
+  isSingleProjectMode = signal(false);
 
-  headerActions: PageHeaderAction[] = [
-    {
-      label: 'New Task',
-      icon: 'fas fa-plus',
-      action: () => this.createNewTask(),
-      variant: 'primary'
-    },
-    {
-      label: 'Filters',
-      icon: 'fas fa-filter',
-      action: () => this.toggleFilters(),
-      variant: 'outline'
-    }
-  ];
+  headerActions: PageHeaderAction[] = [];
 
   filters = {
     project: '',
@@ -55,14 +57,67 @@ export class BoardComponent implements OnInit {
   };
 
   filteredTasks: Task[] = [];
-  
-  
 
   ngOnInit(): void {
+    // Check if we have a project ID in the route
+    const projectId = this.route.snapshot.params['id'];
+    if (projectId) {
+      const id = parseInt(projectId);
+      this.projectId.set(id);
+      this.isSingleProjectMode.set(true);
+    }
+    
+    this.setupHeaderActions();
     this.loadBoardData();
+    
+    // Handle task modal opening from route
+    const taskId = this.route.snapshot.params['taskId'];
+    if (taskId) {
+      setTimeout(() => {
+        this.openTaskModalById(parseInt(taskId));
+      }, 1000); // Wait for data to load
+    }
   }
 
-  private async loadBoardData(): Promise<void> {
+  private setupHeaderActions(): void {
+    this.headerActions = [
+      {
+        label: 'Nueva Tarea',
+        icon: 'fas fa-plus',
+        action: () => this.createNewTask(),
+        variant: 'primary'
+      },
+      {
+        label: 'Filtros',
+        icon: 'fas fa-filter',
+        action: () => this.toggleFilters(),
+        variant: 'outline'
+      }
+    ];
+    
+    // Add project-specific actions in single project mode
+    if (this.isSingleProjectMode()) {
+      this.headerActions.push(
+        {
+          label: 'Documentación',
+          icon: 'fas fa-book',
+          action: () => this.openDocumentation(),
+          variant: 'outline'
+        },
+        {
+          label: 'Miembros',
+          icon: 'fas fa-users',
+          action: () => this.openMembersOffcanvas(),
+          variant: 'outline'
+        }
+      );
+    }
+  }
+
+  async loadBoardData(): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
+    
     try {
       const user = this.authService.getCurrentUser();
       if (!user) {
@@ -70,41 +125,56 @@ export class BoardComponent implements OnInit {
         return;
       }
       
-      // Load all projects with tasks already included
-      const projectsResponse = await this.projectService.getUserProjects(user.id).toPromise();
-      if (!projectsResponse) {
-        this.loading.set(false);
-        return;
-      }
-      
-      // Combine owned and shared projects
-      const projects = [...projectsResponse.owned, ...projectsResponse.shared];
-      this.projects.set(projects);
-      
-      // Extract all tasks from projects (already included in getUserProjects)
-      const allTasks: Task[] = [];
-      for (const project of projects) {
-        if (project.tasks && project.tasks.length > 0) {
-          // Add project name to tasks for display
-          const tasksWithProject = project.tasks.map(task => ({
-            ...task,
-            projectName: project.name
-          }));
-          allTasks.push(...tasksWithProject);
+      if (this.isSingleProjectMode()) {
+        // Load single project with tasks
+        const projectId = this.projectId()!;
+        const [project, tasks] = await Promise.all([
+          this.projectService.getProject(projectId).toPromise(),
+          this.taskService.getProjectTasks(projectId).toPromise()
+        ]);
+        
+        if (project && tasks) {
+          this.projects.set([project]);
+          this.selectedProject.set(project);
+          this.tasks.set(tasks);
+          this.filteredTasks = tasks;
+        } else {
+          this.error.set('Proyecto no encontrado');
         }
+      } else {
+        // Load all projects with tasks
+        const projectsResponse = await this.projectService.getUserProjects(user.id).toPromise();
+        if (!projectsResponse) {
+          this.loading.set(false);
+          return;
+        }
+        
+        const projects = [...projectsResponse.owned, ...projectsResponse.shared];
+        this.projects.set(projects);
+        
+        // Extract all tasks from projects
+        const allTasks: Task[] = [];
+        for (const project of projects) {
+          if (project.tasks && project.tasks.length > 0) {
+            const tasksWithProject = project.tasks.map(task => ({
+              ...task,
+              projectName: project.name
+            }));
+            allTasks.push(...tasksWithProject);
+          }
+        }
+        
+        this.tasks.set(allTasks);
+        this.filteredTasks = allTasks;
       }
       
-      this.tasks.set(allTasks);
-      this.filteredTasks = allTasks;
       this.loading.set(false);
     } catch (error) {
       console.error('Error loading board data:', error);
+      this.error.set('Error al cargar los datos');
       this.loading.set(false);
     }
   }
-
-
-
 
   toggleFilters(): void {
     this.showFilters.set(!this.showFilters());
@@ -124,6 +194,12 @@ export class BoardComponent implements OnInit {
   applyFilters(): void {
     let filtered = this.tasks();
     
+    // Apply selected project filter first (main project selector)
+    if (this.selectedProject() && !this.isSingleProjectMode()) {
+      filtered = filtered.filter(task => task.projectId === this.selectedProject()!.id);
+    }
+    
+    // Apply additional filters
     if (this.filters.project) {
       filtered = filtered.filter(task => task.projectId.toString() === this.filters.project);
     }
@@ -151,10 +227,6 @@ export class BoardComponent implements OnInit {
     }
     
     this.filteredTasks = filtered;
-  }
-
-  getTasksByStatus(status: string): Task[] {
-    return this.filteredTasks.filter(task => task.status === status);
   }
 
   createNewTask(): void {
@@ -207,5 +279,147 @@ export class BoardComponent implements OnInit {
         this.loadBoardData();
       }
     });
+  }
+
+  openTaskModal(task: Task): void {
+    // Update URL if in single project mode
+    if (this.isSingleProjectMode()) {
+      this.router.navigate(['/projects', this.projectId(), 'tasks', task.id]);
+    }
+    
+    const modalRef = this.modalService.open(TaskDetailModalComponent, {
+      size: 'fullscreen',
+      backdrop: 'static',
+      windowClass: 'fullscreen-modal-window'
+    });
+    
+    modalRef.componentInstance.task = { ...task };
+    modalRef.componentInstance.projects = this.projects();
+    modalRef.componentInstance.users = this.users();
+    
+    modalRef.result.then((updatedTask) => {
+      if (updatedTask) {
+        this.onTaskUpdated(updatedTask);
+      }
+      // Navigate back if in single project mode
+      if (this.isSingleProjectMode()) {
+        this.router.navigate(['/projects', this.projectId()]);
+      }
+    }).catch(() => {
+      // Modal dismissed
+      if (this.isSingleProjectMode()) {
+        this.router.navigate(['/projects', this.projectId()]);
+      }
+    });
+  }
+  
+  openTaskModalById(taskId: number): void {
+    const task = this.tasks().find(t => t.id === taskId);
+    if (task) {
+      this.openTaskModal(task);
+    }
+  }
+  
+  openDocumentation(): void {
+    const projectId = this.projectId();
+    if (projectId) {
+      this.router.navigate(['/projects', projectId, 'documentation']);
+    }
+  }
+  
+  openMembersOffcanvas(): void {
+    const offcanvasRef = this.offcanvasService.open(this.membersOffcanvasTemplate, {
+      position: 'end',
+      backdrop: true,
+      keyboard: true,
+      panelClass: 'members-offcanvas'
+    });
+
+    offcanvasRef.result.then(
+      (result) => {
+        if (result) {
+          this.loadBoardData();
+        }
+      },
+      (dismissed) => {
+        console.log('Members offcanvas dismissed');
+      }
+    );
+  }
+  
+  onProjectSelected(project: Project | null): void {
+    this.selectedProject.set(project);
+    this.applyFilters();
+  }
+
+  onProjectSelectChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const projectId = selectElement.value;
+    
+    if (projectId) {
+      const project = this.projects().find(p => p.id.toString() === projectId);
+      this.onProjectSelected(project || null);
+    } else {
+      this.onProjectSelected(null);
+    }
+  }
+
+  clearProjectSelection(): void {
+    this.selectedProject.set(null);
+    this.applyFilters();
+  }
+  
+  getCurrentProject(): Project | null {
+    return this.selectedProject();
+  }
+  
+  getMembersCount(): number {
+    const project = this.getCurrentProject();
+    if (!project) return 0;
+    
+    let count = 1; // Owner
+    if (project.sharedUsers) {
+      count += project.sharedUsers.length;
+    }
+    return count;
+  }
+  
+  getFilteredTasks(): Task[] {
+    return this.filteredTasks;
+  }
+  
+  getPageTitle(): string {
+    if (this.isSingleProjectMode()) {
+      const project = this.getCurrentProject();
+      return project?.name || 'Proyecto';
+    }
+    return 'Tablero';
+  }
+  
+  getPageSubtitle(): string {
+    if (this.isSingleProjectMode()) {
+      const project = this.getCurrentProject();
+      return project?.description || 'Gestión de tareas del proyecto';
+    }
+    return 'Vista Kanban de todas las tareas en todos los proyectos';
+  }
+  
+  get completedTasksCount(): number {
+    return this.tasks().filter(t => t.status === TaskStatus.FINISHED).length;
+  }
+
+  get inProgressTasksCount(): number {
+    return this.tasks().filter(t => 
+      t.status === TaskStatus.IN_PROGRESS || 
+      t.status === TaskStatus.TESTING || 
+      t.status === TaskStatus.READY_TO_FINISH
+    ).length;
+  }
+
+  get pendingTasksCount(): number {
+    return this.tasks().filter(t => 
+      t.status === TaskStatus.CREATED || 
+      t.status === TaskStatus.BLOCKED
+    ).length;
   }
 }
